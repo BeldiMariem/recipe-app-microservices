@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Databases
   user-db:
     image: postgres:13
     container_name: user-db
@@ -13,32 +12,12 @@ services:
       - "5432:5432"
     networks:
       - recipe-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  ingredient-db:
-    image: postgres:13
-    container_name: ingredient-db
-    environment:
-      POSTGRES_DB: ingredientdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5433:5432"
-    networks:
-      - recipe-network
-
-  recipe-db:
-    image: postgres:13
-    container_name: recipe-db
-    environment:
-      POSTGRES_DB: recipedb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5434:5432"
-    networks:
-      - recipe-network
-
-  # Service Discovery
   service-discovery:
     build: ./service-discovery
     container_name: service-discovery
@@ -46,34 +25,55 @@ services:
       - "8761:8761"
     networks:
       - recipe-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
-  # API Gateway
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
     ports:
       - "8080:8080"
     depends_on:
-      - service-discovery
+      service-discovery:
+        condition: service_healthy
     environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka
+      - SPRING_PROFILES_ACTIVE=docker
     networks:
       - recipe-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
-  # User Service
   user-service:
     build: ./user-service
     container_name: user-service
     ports:
       - "8081:8081"
     depends_on:
-      - service-discovery
-      - user-db
+      service-discovery:
+        condition: service_healthy
+      user-db:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/userdb
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_PROFILES_ACTIVE=docker
     networks:
       - recipe-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
 networks:
   recipe-network:
