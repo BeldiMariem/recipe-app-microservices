@@ -10,17 +10,20 @@ import org.springframework.stereotype.Service;
 import com.recipe.user_service.dto.JwtResponse;
 import com.recipe.user_service.dto.LoginRequest;
 import com.recipe.user_service.entity.User;
+import com.recipe.user_service.repository.UserRepository;
 import com.recipe.user_service.security.JwtUtil;
 
 @Service
 public class AuthService {
 
-  
     @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserRepository userRepository; 
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -34,11 +37,11 @@ public class AuthService {
         
         String jwt = jwtUtil.generateToken(authentication);
 
-        User user = (User) authentication.getPrincipal();
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found in database after authentication"));
         
         return new JwtResponse(
             jwt,
-            user.getId(),
             user.getUsername(),
             user.getEmail(),
             user.getRoles()

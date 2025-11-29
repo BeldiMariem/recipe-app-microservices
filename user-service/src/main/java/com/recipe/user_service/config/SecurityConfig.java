@@ -16,13 +16,12 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.recipe.user_service.security.UserDetailsServiceImpl;
 
-
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
 public class SecurityConfig {
 
-   @Autowired
+    @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
     @Bean
@@ -46,13 +45,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/auth/**", "/actuator/health").permitAll()
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/auth/**", "/actuator/health").permitAll() 
                 .anyRequest().authenticated()
-            )
-            .authenticationProvider(authenticationProvider())
-            .build();
+                )
+                .authenticationProvider(authenticationProvider())
+                .build();
     }
 }
