@@ -49,7 +49,7 @@ public class JwtExtractionFilter implements GlobalFilter, Ordered {
             String userId = claims.getSubject();
             
             ServerWebExchange mutatedExchange = exchange.mutate()
-                    .request(builder -> builder.header("X-User-Id", userId))
+                    .request(builder -> builder.header("User-Id", userId))
                     .build();
             
             return chain.filter(mutatedExchange);
