@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.recipe.user_service.entity.User;
-import com.recipe.user_service.services.UserService;
+import com.recipe.user_service.service.UserService;
 
 @RestController
 @RequestMapping("/users")

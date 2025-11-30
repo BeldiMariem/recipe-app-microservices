@@ -17,8 +17,8 @@ import com.recipe.user_service.dto.RegisterRequest;
 import com.recipe.user_service.dto.RegisterResponse;
 import com.recipe.user_service.entity.User;
 import com.recipe.user_service.repository.UserRepository;
-import com.recipe.user_service.services.AuthService;
-import com.recipe.user_service.services.UserService;
+import com.recipe.user_service.service.AuthService;
+import com.recipe.user_service.service.UserService;
 
 import jakarta.validation.Valid;
 

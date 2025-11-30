@@ -1,4 +1,4 @@
-package com.recipe.user_service.services;
+package com.recipe.user_service.service;
 
 import java.util.Optional;
 

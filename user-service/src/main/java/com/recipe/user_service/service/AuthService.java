@@ -1,4 +1,4 @@
-package com.recipe.user_service.services;
+package com.recipe.user_service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
