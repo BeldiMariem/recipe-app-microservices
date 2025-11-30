@@ -1,9 +1,10 @@
 package com.recipe.pantry_service.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.recipe.pantry_service.dto.AddPantryItemRequest;
 import com.recipe.pantry_service.dto.PantryItemResponse;
 import com.recipe.pantry_service.entity.PantryItem;
-import org.springframework.stereotype.Component;
 
 @Component
 public class PantryMapper {
@@ -13,7 +14,6 @@ public class PantryMapper {
             return null;
         }
         
-        // Use your existing builder for the main fields
         PantryItem item = PantryItem.builder()
             .userId(userId)
             .name(request.getName() != null ? request.getName().toLowerCase() : null)

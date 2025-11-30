@@ -27,4 +27,12 @@ public class FallbackController {
         response.put("status", "SERVICE_UNAVAILABLE");
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
     }
+    
+    @GetMapping("/recipe-service")
+    public ResponseEntity<Map<String, String>> recipeServiceFallback() {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Recipe service is temporarily unavailable.");
+        response.put("status", "SERVICE_UNAVAILABLE");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+    }
 }

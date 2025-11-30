@@ -34,7 +34,17 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
+  recipe-db:
+    image: postgres:13
+    container_name: recipe-db
+    environment:
+      POSTGRES_DB: recipedb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
+    networks:
+      - recipe-network
   service-discovery:
     build: ./service-discovery
     container_name: service-discovery
@@ -115,6 +125,20 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+  
+  recipe-service:
+    build: ./recipe-service
+    container_name: recipe-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - service-discovery
+      - recipe-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://recipe-db:5432/recipedb
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - recipe-network
 
 networks:
   recipe-network:
