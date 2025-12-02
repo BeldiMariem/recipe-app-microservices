@@ -105,7 +105,7 @@ class PantryControllerTest {
         
         when(pantryService.getUserPantry(USER_ID)).thenReturn(responses);
 
-        mockMvc.perform(get("/api/pantry/items/getItems")
+        mockMvc.perform(get("/api/pantry/items")
                 .header(USER_HEADER, USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -117,7 +117,7 @@ class PantryControllerTest {
     void getUserPantry_EmptyPantry_ReturnsEmptyArray() throws Exception {
         when(pantryService.getUserPantry(USER_ID)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/pantry/items/getItems")
+        mockMvc.perform(get("/api/pantry/items")
                 .header(USER_HEADER, USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
@@ -125,7 +125,7 @@ class PantryControllerTest {
 
     @Test
     void getUserPantry_MissingUserIdHeader_ReturnsBadRequest() throws Exception {
-        mockMvc.perform(get("/api/pantry/items/getItems"))
+        mockMvc.perform(get("/api/pantry/items"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -251,7 +251,7 @@ class PantryControllerTest {
 
     @Test
     void wrongHttpMethod_ReturnsMethodNotAllowed() throws Exception {
-        mockMvc.perform(post("/api/pantry/items/getItems")
+        mockMvc.perform(post("/api/pantry/items")
                 .header(USER_HEADER, USER_ID))
                 .andExpect(status().isMethodNotAllowed());
     }
