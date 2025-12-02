@@ -25,7 +25,7 @@ public class PantryController {
         return ResponseEntity.ok(response);
     }
     
-    @GetMapping("/items/getItems")
+    @GetMapping("/items")
     public ResponseEntity<List<PantryItemResponse>> getUserPantry(
             @RequestHeader("User-Id") String userId) {
         List<PantryItemResponse> items = pantryService.getUserPantry(userId);

@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: userdb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD:-password}
     ports:
       - "5432:5432"
     networks:
@@ -24,7 +24,7 @@ services:
     environment:
       POSTGRES_DB: pantrydb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${PANTRY_DB_PASSWORD:-password}
     ports:
       - "5433:5432"
     networks:
@@ -34,17 +34,19 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+  
   recipe-db:
     image: postgres:13
     container_name: recipe-db
     environment:
       POSTGRES_DB: recipedb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${RECIPE_DB_PASSWORD:-password}
     ports:
       - "5434:5432"
     networks:
       - recipe-network
+
   service-discovery:
     build: ./service-discovery
     container_name: service-discovery
@@ -91,7 +93,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/userdb
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_PASSWORD=${USER_DB_PASSWORD:-password}
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - recipe-network
@@ -115,7 +117,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://pantry-db:5432/pantrydb
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_PASSWORD=${PANTRY_DB_PASSWORD:-password}
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - recipe-network
@@ -136,7 +138,23 @@ services:
       - recipe-db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://recipe-db:5432/recipedb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=${RECIPE_DB_PASSWORD:-password}
       - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - recipe-network
+
+  ai-chef-service:
+    build: ./ai-chef-service
+    container_name: ai-chef-service
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - service-discovery
+      - pantry-service
     networks:
       - recipe-network
 

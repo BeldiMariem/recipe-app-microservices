@@ -72,7 +72,7 @@ class PantryServiceClientTest {
         assertEquals("tomato", result.get(0).getName());
         
         verify(webClient).get();
-        verify(requestHeadersUriSpec).uri("http://pantry-service/api/pantry/items/getItems");
+        verify(requestHeadersUriSpec).uri("http://pantry-service/api/pantry/items");
         verify(requestHeadersSpec).header("User-Id", USER_ID);
         verify(requestHeadersSpec).retrieve();
     }
@@ -88,7 +88,7 @@ class PantryServiceClientTest {
         assertTrue(result.isEmpty());
         
         verify(webClient).get();
-        verify(requestHeadersUriSpec).uri("http://pantry-service/api/pantry/items/getItems");
+        verify(requestHeadersUriSpec).uri("http://pantry-service/api/pantry/items");
     }
 
     @Test

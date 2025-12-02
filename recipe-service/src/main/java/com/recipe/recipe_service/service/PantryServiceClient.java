@@ -20,7 +20,7 @@ public class PantryServiceClient {
         try {
             return webClientBuilder.build()
                 .get()
-                .uri("http://pantry-service/api/pantry/items/getItems")
+                .uri("http://pantry-service/api/pantry/items")
                 .header("User-Id", userId)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<PantryItem>>() {})
