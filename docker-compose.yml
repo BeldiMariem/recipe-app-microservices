@@ -151,7 +151,7 @@ services:
       - "8084:8084"
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       - service-discovery
       - pantry-service
