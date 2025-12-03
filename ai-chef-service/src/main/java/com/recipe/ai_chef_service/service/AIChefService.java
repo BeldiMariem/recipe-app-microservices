@@ -1,615 +1,146 @@
 package com.recipe.ai_chef_service.service;
 
-import com.recipe.ai_chef_service.client.PantryServiceClient;
-import com.recipe.ai_chef_service.dto.*;
-import com.theokanning.openai.completion.chat.*;
-import com.theokanning.openai.service.OpenAiService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.recipe.ai_chef_service.client.PantryServiceClient;
+import com.recipe.ai_chef_service.dto.IngredientDTO;
+import com.recipe.ai_chef_service.dto.PantryItemDTO;
+import com.recipe.ai_chef_service.dto.RecipeGenerationRequest;
+import com.recipe.ai_chef_service.dto.RecipeGenerationResponse;
+import com.recipe.ai_chef_service.dto.RecipeSuggestion;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class AIChefService {
-    
-    private final OpenAiService openAiService;
+
+    private static final Logger log = LoggerFactory.getLogger(AIChefService.class);
+
+    private final GeminiService geminiService;
     private final PantryServiceClient pantryServiceClient;
-    
-    @Value("${openai.model:gpt-4-turbo-preview}")
-    private String model;
-    
-    @Value("${openai.max-tokens:1000}")
-    private Integer maxTokens;
-    
-    @Value("${openai.temperature:0.7}")
-    private Double temperature;
-    
+
     @Value("${recipe.generation.use-expiring-first:true}")
     private boolean useExpiringFirst;
-    
-    
-    private List<RecipeSuggestion> generateFallbackRecipes(List<PantryItemDTO> pantryItems,
-                                                          RecipeGenerationRequest preferences) {
-        // Simple fallback recipes based on ingredient matching
-        List<RecipeSuggestion> fallbacks = new ArrayList<>();
-        
-        // Group ingredients by type
-        Map<String, List<PantryItemDTO>> ingredientGroups = pantryItems.stream()
-            .collect(Collectors.groupingBy(item -> categorizeIngredient(item.getName())));
-        
-        // Generate simple recipe ideas based on available ingredient groups
-        if (ingredientGroups.containsKey("vegetable") && ingredientGroups.containsKey("protein")) {
-            fallbacks.add(createStirFryRecipe(pantryItems, preferences));
-        }
-        
-        if ((ingredientGroups.containsKey("pasta") || ingredientGroups.containsKey("grain")) && 
-            (ingredientGroups.containsKey("sauce") || ingredientGroups.containsKey("tomato"))) {
-            fallbacks.add(createPastaRecipe(pantryItems, preferences));
-        }
-        
-        if (ingredientGroups.containsKey("vegetable") && ingredientGroups.size() >= 3) {
-            fallbacks.add(createSoupRecipe(pantryItems, preferences));
-        }
-        
-        if (ingredientGroups.containsKey("egg") && ingredientGroups.containsKey("vegetable")) {
-            fallbacks.add(createOmeletteRecipe(pantryItems, preferences));
-        }
-        
-        if (ingredientGroups.containsKey("rice") && ingredientGroups.containsKey("vegetable")) {
-            fallbacks.add(createFriedRiceRecipe(pantryItems, preferences));
-        }
-        
-        // If no specific recipes match, create a simple "bowl" recipe
-        if (fallbacks.isEmpty() && !pantryItems.isEmpty()) {
-            fallbacks.add(createSimpleBowlRecipe(pantryItems, preferences));
-        }
-        
-        return fallbacks;
+
+    public AIChefService(GeminiService geminiService, PantryServiceClient pantryServiceClient) {
+        this.geminiService = geminiService;
+        this.pantryServiceClient = pantryServiceClient;
     }
-    
-    private RecipeSuggestion createStirFryRecipe(List<PantryItemDTO> pantryItems,
-                                                RecipeGenerationRequest preferences) {
-        List<PantryItemDTO> vegetables = pantryItems.stream()
-            .filter(item -> categorizeIngredient(item.getName()).equals("vegetable"))
-            .limit(3)
-            .collect(Collectors.toList());
-        
-        List<PantryItemDTO> proteins = pantryItems.stream()
-            .filter(item -> categorizeIngredient(item.getName()).equals("protein"))
-            .limit(1)
-            .collect(Collectors.toList());
-        
-        List<IngredientDTO> ingredients = new ArrayList<>();
-        
-        // Add vegetables
-        vegetables.forEach(veg -> 
-            ingredients.add(new IngredientDTO(veg.getName(), 
-                Math.min(veg.getQuantity(), 200.0), "g")));
-        
-        // Add protein
-        proteins.forEach(protein -> 
-            ingredients.add(new IngredientDTO(protein.getName(), 
-                Math.min(protein.getQuantity(), 150.0), "g")));
-        
-        return new RecipeSuggestion(
-            "Quick Vegetable Stir Fry",
-            "A quick and healthy stir fry using your available vegetables and protein",
-            ingredients,
-            Arrays.asList(
-                "Chop all vegetables into bite-sized pieces",
-                "Cut protein into thin strips or cubes",
-                "Heat 1 tablespoon of oil in a wok or large pan over high heat",
-                "Cook protein first until browned, then remove from pan",
-                "Add vegetables and stir fry for 3-5 minutes until tender-crisp",
-                "Return protein to pan, add 2 tablespoons of soy sauce",
-                "Stir fry for another 1-2 minutes until everything is heated through",
-                "Serve hot over rice or noodles if available"
-            ),
-            20,
-            preferences.getServings() != null ? preferences.getServings() : 2,
-            "easy",
-            "Asian",
-            0.7,
-            Arrays.asList("cooking oil", "soy sauce", "garlic")
-        );
-    }
-    
-    private RecipeSuggestion createPastaRecipe(List<PantryItemDTO> pantryItems,
-                                              RecipeGenerationRequest preferences) {
-        // Find pasta/grains
-        Optional<PantryItemDTO> pasta = pantryItems.stream()
-            .filter(item -> item.getName().toLowerCase().contains("pasta") || 
-                           item.getName().toLowerCase().contains("spaghetti") ||
-                           item.getName().toLowerCase().contains("noodle"))
-            .findFirst();
-        
-        // Find sauce ingredients
-        List<PantryItemDTO> sauceIngredients = pantryItems.stream()
-            .filter(item -> item.getName().toLowerCase().contains("tomato") ||
-                           item.getName().toLowerCase().contains("sauce") ||
-                           item.getName().toLowerCase().contains("cream"))
-            .limit(3)
-            .collect(Collectors.toList());
-        
-        List<IngredientDTO> ingredients = new ArrayList<>();
-        
-        if (pasta.isPresent()) {
-            ingredients.add(new IngredientDTO(pasta.get().getName(), 
-                Math.min(pasta.get().getQuantity(), 200.0), "g"));
-        } else {
-            // Use any grain as base
-            pantryItems.stream()
-                .filter(item -> categorizeIngredient(item.getName()).equals("grain"))
-                .findFirst()
-                .ifPresent(grain -> 
-                    ingredients.add(new IngredientDTO(grain.getName(), 
-                        Math.min(grain.getQuantity(), 200.0), "g")));
-        }
-        
-        // Add sauce ingredients
-        sauceIngredients.forEach(ing -> 
-            ingredients.add(new IngredientDTO(ing.getName(), 
-                Math.min(ing.getQuantity(), 150.0), "g")));
-        
-        // Add any available cheese
-        pantryItems.stream()
-            .filter(item -> item.getName().toLowerCase().contains("cheese"))
-            .findFirst()
-            .ifPresent(cheese -> 
-                ingredients.add(new IngredientDTO(cheese.getName(), 
-                    Math.min(cheese.getQuantity(), 50.0), "g")));
-        
-        return new RecipeSuggestion(
-            "Simple Pasta Dish",
-            pasta.isPresent() ? "A delicious pasta dish with your available ingredients" 
-                             : "Grain-based dish with flavorful sauce",
-            ingredients,
-            Arrays.asList(
-                "Cook the pasta/grain according to package instructions",
-                "While pasta cooks, chop sauce ingredients if needed",
-                "Heat 1 tablespoon of oil in a pan over medium heat",
-                "Add sauce ingredients and cook for 5-7 minutes until softened",
-                "Season with salt, pepper, and herbs if available",
-                "Drain pasta/grain and add to the sauce",
-                "Toss everything together until well coated",
-                "Grate cheese on top if available and serve immediately"
-            ),
-            25,
-            preferences.getServings() != null ? preferences.getServings() : 2,
-            "easy",
-            "Italian",
-            0.6,
-            Arrays.asList("salt", "pepper", "olive oil", "herbs")
-        );
-    }
-    
-    private RecipeSuggestion createSoupRecipe(List<PantryItemDTO> pantryItems,
-                                             RecipeGenerationRequest preferences) {
-        List<PantryItemDTO> vegetables = pantryItems.stream()
-            .filter(item -> categorizeIngredient(item.getName()).equals("vegetable"))
-            .limit(4)
-            .collect(Collectors.toList());
-        
-        Optional<PantryItemDTO> protein = pantryItems.stream()
-            .filter(item -> categorizeIngredient(item.getName()).equals("protein"))
-            .findFirst();
-        
-        List<IngredientDTO> ingredients = new ArrayList<>();
-        
-        // Add vegetables
-        vegetables.forEach(veg -> 
-            ingredients.add(new IngredientDTO(veg.getName(), 
-                Math.min(veg.getQuantity(), 150.0), "g")));
-        
-        // Add protein if available
-        protein.ifPresent(p -> 
-            ingredients.add(new IngredientDTO(p.getName(), 
-                Math.min(p.getQuantity(), 100.0), "g")));
-        
-        // Add any broth or stock
-        pantryItems.stream()
-            .filter(item -> item.getName().toLowerCase().contains("broth") ||
-                           item.getName().toLowerCase().contains("stock"))
-            .findFirst()
-            .ifPresent(broth -> 
-                ingredients.add(new IngredientDTO(broth.getName(), 
-                    Math.min(broth.getQuantity(), 500.0), "ml")));
-        
-        return new RecipeSuggestion(
-            "Hearty Vegetable Soup",
-            protein.isPresent() ? "Nourishing soup with vegetables and protein" 
-                               : "Simple vegetable soup",
-            ingredients,
-            Arrays.asList(
-                "Chop all vegetables into bite-sized pieces",
-                protein.map(p -> "Cut " + p.getName() + " into small cubes").orElse(""),
-                "Heat 1 tablespoon of oil in a large pot over medium heat",
-                "Add vegetables (and protein if using) and cook for 5 minutes",
-                "Add 4 cups of water or broth to the pot",
-                "Bring to a boil, then reduce heat and simmer for 20-25 minutes",
-                "Season with salt and pepper to taste",
-                "Serve hot with crusty bread if available"
-            ).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList()),
-            35,
-            preferences.getServings() != null ? preferences.getServings() : 4,
-            "easy",
-            "International",
-            0.8,
-            Arrays.asList("salt", "pepper", "herbs", "broth/stock")
-        );
-    }
-    
-    private RecipeSuggestion createOmeletteRecipe(List<PantryItemDTO> pantryItems,
-                                                 RecipeGenerationRequest preferences) {
-        List<PantryItemDTO> eggs = pantryItems.stream()
-            .filter(item -> item.getName().toLowerCase().contains("egg"))
-            .collect(Collectors.toList());
-        
-        List<PantryItemDTO> fillings = pantryItems.stream()
-            .filter(item -> categorizeIngredient(item.getName()).equals("vegetable") ||
-                           item.getName().toLowerCase().contains("cheese") ||
-                           item.getName().toLowerCase().contains("ham"))
-            .limit(3)
-            .collect(Collectors.toList());
-        
-        List<IngredientDTO> ingredients = new ArrayList<>();
-        
-        if (!eggs.isEmpty()) {
-            ingredients.add(new IngredientDTO("Eggs", 
-                Math.min(eggs.get(0).getQuantity(), 3.0), "pieces"));
-        }
-        
-        fillings.forEach(filling -> 
-            ingredients.add(new IngredientDTO(filling.getName(), 
-                Math.min(filling.getQuantity(), 50.0), "g")));
-        
-        return new RecipeSuggestion(
-            "Custom Omelette",
-            "Fluffy omelette filled with your available ingredients",
-            ingredients,
-            Arrays.asList(
-                "Chop filling ingredients into small pieces",
-                "Beat eggs in a bowl with a pinch of salt and pepper",
-                "Heat 1 teaspoon of butter or oil in a non-stick pan over medium heat",
-                "Add filling ingredients and cook for 2-3 minutes until softened",
-                "Pour beaten eggs over the fillings",
-                "Cook for 2-3 minutes until edges set, then gently lift edges",
-                "When top is nearly set, fold omelette in half",
-                "Slide onto plate and serve immediately"
-            ),
-            15,
-            1,
-            "easy",
-            "French",
-            0.9,
-            Arrays.asList("butter/oil", "salt", "pepper")
-        );
-    }
-    
-    private RecipeSuggestion createFriedRiceRecipe(List<PantryItemDTO> pantryItems,
-                                                  RecipeGenerationRequest preferences) {
-        Optional<PantryItemDTO> rice = pantryItems.stream()
-            .filter(item -> item.getName().toLowerCase().contains("rice"))
-            .findFirst();
-        
-        List<PantryItemDTO> mixins = pantryItems.stream()
-            .filter(item -> categorizeIngredient(item.getName()).equals("vegetable") ||
-                           categorizeIngredient(item.getName()).equals("protein") ||
-                           item.getName().toLowerCase().contains("egg"))
-            .limit(4)
-            .collect(Collectors.toList());
-        
-        List<IngredientDTO> ingredients = new ArrayList<>();
-        
-        rice.ifPresent(r -> 
-            ingredients.add(new IngredientDTO(r.getName(), 
-                Math.min(r.getQuantity(), 300.0), "g")));
-        
-        mixins.forEach(mixin -> 
-            ingredients.add(new IngredientDTO(mixin.getName(), 
-                Math.min(mixin.getQuantity(), 100.0), "g")));
-        
-        return new RecipeSuggestion(
-            "Fried Rice",
-            "Quick and versatile fried rice using leftover rice and available ingredients",
-            ingredients,
-            Arrays.asList(
-                "If rice is freshly cooked, spread it on a plate to cool slightly",
-                "Chop all mix-in ingredients into small, uniform pieces",
-                "Heat 2 tablespoons of oil in a wok or large pan over high heat",
-                "Add protein (if using) and cook until done, then remove",
-                "Add vegetables and cook for 2-3 minutes until tender-crisp",
-                "Push vegetables to one side, add beaten eggs if using and scramble",
-                "Add rice and break up any clumps",
-                "Add 2 tablespoons of soy sauce and stir fry for 2-3 minutes",
-                "Return protein to pan and mix everything together",
-                "Serve hot"
-            ),
-            20,
-            preferences.getServings() != null ? preferences.getServings() : 2,
-            "easy",
-            "Asian",
-            0.7,
-            Arrays.asList("cooking oil", "soy sauce", "garlic")
-        );
-    }
-    
-    private RecipeSuggestion createSimpleBowlRecipe(List<PantryItemDTO> pantryItems,
-                                                   RecipeGenerationRequest preferences) {
-        // Create a simple grain bowl with available ingredients
-        List<PantryItemDTO> grains = pantryItems.stream()
-            .filter(item -> categorizeIngredient(item.getName()).equals("grain") ||
-                           item.getName().toLowerCase().contains("rice") ||
-                           item.getName().toLowerCase().contains("quinoa"))
-            .limit(1)
-            .collect(Collectors.toList());
-        
-        List<PantryItemDTO> toppings = pantryItems.stream()
-            .filter(item -> !categorizeIngredient(item.getName()).equals("grain"))
-            .limit(5)
-            .collect(Collectors.toList());
-        
-        List<IngredientDTO> ingredients = new ArrayList<>();
-        
-        if (!grains.isEmpty()) {
-            ingredients.add(new IngredientDTO(grains.get(0).getName(), 
-                Math.min(grains.get(0).getQuantity(), 150.0), "g"));
-        }
-        
-        toppings.forEach(topping -> 
-            ingredients.add(new IngredientDTO(topping.getName(), 
-                Math.min(topping.getQuantity(), 75.0), "g")));
-        
-        return new RecipeSuggestion(
-            "Simple Grain Bowl",
-            "Customizable bowl with grains and your available toppings",
-            ingredients,
-            Arrays.asList(
-                grains.isEmpty() ? "Arrange your ingredients attractively on a plate" 
-                                : "Cook grain according to package instructions",
-                "Prepare toppings: chop vegetables, cook protein if needed",
-                "If using dressing, whisk together 3 parts oil to 1 part acid (vinegar/lemon)",
-                "Place grain in bowl (if using) and arrange toppings on top",
-                "Drizzle with dressing or sauce if available",
-                "Season with salt and pepper to taste"
-            ),
-            15,
-            preferences.getServings() != null ? preferences.getServings() : 1,
-            "very easy",
-            "International",
-            0.95,
-            Arrays.asList("salt", "pepper", "dressing ingredients")
-        );
-    }
-    
+
     public RecipeGenerationResponse generateRecipes(RecipeGenerationRequest request) {
+        List<PantryItemDTO> pantryItems = null;
+
         try {
-            // Get user's pantry items
-            List<PantryItemDTO> pantryItems = pantryServiceClient.getUserPantry(request.getUserId());
-            
+            pantryItems = pantryServiceClient.getUserPantry(request.getUserId());
+
             if (pantryItems.isEmpty()) {
-                throw new IllegalArgumentException("Your pantry is empty! Add some ingredients first.");
+                return createEmptyPantryResponse(request);
             }
-            
-            // Prioritize expiring items if configured
+
             if (useExpiringFirst) {
                 List<PantryItemDTO> expiringItems = pantryServiceClient.getExpiringItems(request.getUserId());
                 pantryItems = prioritizeExpiringItems(pantryItems, expiringItems);
             }
-            
-            // Generate recipes using AI
-            List<RecipeSuggestion> suggestions = generateRecipesWithAI(pantryItems, request);
-            
-            return new RecipeGenerationResponse(
-                suggestions,
-                UUID.randomUUID().toString(),
-                System.currentTimeMillis()
-            );
-            
-        } catch (Exception e) {
-            log.error("Error generating recipes: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to generate recipes: " + e.getMessage());
-        }
-    }
-    
-    private List<PantryItemDTO> prioritizeExpiringItems(List<PantryItemDTO> allItems, 
-                                                       List<PantryItemDTO> expiringItems) {
-        Set<String> expiringNames = expiringItems.stream()
-            .map(PantryItemDTO::getName)
-            .collect(Collectors.toSet());
-        
-        List<PantryItemDTO> prioritized = new ArrayList<>();
-        
-        // Add expiring items first
-        prioritized.addAll(allItems.stream()
-            .filter(item -> expiringNames.contains(item.getName()))
-            .collect(Collectors.toList()));
-        
-        // Add remaining items
-        prioritized.addAll(allItems.stream()
-            .filter(item -> !expiringNames.contains(item.getName()))
-            .collect(Collectors.toList()));
-        
-        return prioritized;
-    }
-    
-    private List<RecipeSuggestion> generateRecipesWithAI(List<PantryItemDTO> pantryItems, 
-                                                        RecipeGenerationRequest preferences) {
-        
-        String prompt = buildRecipeGenerationPrompt(pantryItems, preferences);
-        
-        List<ChatMessage> messages = new ArrayList<>();
-        messages.add(new ChatMessage(ChatMessageRole.SYSTEM.value(), 
-            "You are an expert chef and nutritionist. Generate creative, practical recipes based on available ingredients. " +
-            "Focus on reducing food waste and creating delicious meals."));
-        
-        messages.add(new ChatMessage(ChatMessageRole.USER.value(), prompt));
-        
-        ChatCompletionRequest chatRequest = ChatCompletionRequest.builder()
-            .model(model)
-            .messages(messages)
-            .maxTokens(maxTokens)
-            .temperature(temperature)
-            .n(3) // Generate 3 recipe suggestions
-            .build();
-        
-        try {
-            ChatCompletionResult completion = openAiService.createChatCompletion(chatRequest);
-            
-            return parseAIResponse(completion, pantryItems);
-            
-        } catch (Exception e) {
-            log.error("OpenAI API error: {}", e.getMessage(), e);
-            return generateFallbackRecipes(pantryItems, preferences);
-        }
-    }
-    
-    private String buildRecipeGenerationPrompt(List<PantryItemDTO> pantryItems, 
-                                              RecipeGenerationRequest preferences) {
-        StringBuilder prompt = new StringBuilder();
-        
-        prompt.append("Generate recipe suggestions based on these pantry items:\n\n");
-        
-        for (PantryItemDTO item : pantryItems) {
-            prompt.append("- ").append(item.getName())
-                  .append(": ").append(item.getQuantity())
-                  .append(" ").append(item.getUnit())
-                  .append(" (expires: ").append(item.getExpiryDate() != null ? item.getExpiryDate() : "no expiry")
-                  .append(")\n");
-        }
-        
-        prompt.append("\nPreferences:\n");
-        if (preferences.getPreferredCuisines() != null && !preferences.getPreferredCuisines().isEmpty()) {
-            prompt.append("- Cuisines: ").append(String.join(", ", preferences.getPreferredCuisines())).append("\n");
-        }
-        if (preferences.getMealType() != null) {
-            prompt.append("- Meal type: ").append(preferences.getMealType()).append("\n");
-        }
-        if (preferences.getMaxPreparationTime() != null) {
-            prompt.append("- Max preparation time: ").append(preferences.getMaxPreparationTime()).append(" minutes\n");
-        }
-        if (preferences.getServings() != null) {
-            prompt.append("- Servings: ").append(preferences.getServings()).append("\n");
-        }
-        if (preferences.getDifficulty() != null) {
-            prompt.append("- Difficulty: ").append(preferences.getDifficulty()).append("\n");
-        }
-        if (preferences.getDietaryRestrictions() != null && !preferences.getDietaryRestrictions().isEmpty()) {
-            prompt.append("- Dietary restrictions: ").append(String.join(", ", preferences.getDietaryRestrictions())).append("\n");
-        }
-        
-        prompt.append("\nPlease generate recipes in this JSON format for each recipe:\n");
-        prompt.append("{\n");
-        prompt.append("  \"title\": \"Recipe Title\",\n");
-        prompt.append("  \"description\": \"Brief description\",\n");
-        prompt.append("  \"ingredients\": [\n");
-        prompt.append("    {\"name\": \"ingredient name\", \"quantity\": 1.0, \"unit\": \"unit\"}\n");
-        prompt.append("  ],\n");
-        prompt.append("  \"instructions\": [\"step 1\", \"step 2\"],\n");
-        prompt.append("  \"preparationTime\": 30,\n");
-        prompt.append("  \"servings\": 4,\n");
-        prompt.append("  \"difficulty\": \"easy\",\n");
-        prompt.append("  \"cuisine\": \"type of cuisine\",\n");
-        prompt.append("  \"missingIngredients\": [\"item1\", \"item2\"]\n");
-        prompt.append("}\n");
-        
-        prompt.append("\nImportant: Focus on using ingredients that are expiring soon to reduce food waste.");
-        prompt.append(" Mark common pantry staples (salt, pepper, oil, water) as missing ingredients if not explicitly listed.");
-        
-        return prompt.toString();
-    }
-    
-    private List<RecipeSuggestion> parseAIResponse(ChatCompletionResult completion, 
-                                                  List<PantryItemDTO> pantryItems) {
-        List<RecipeSuggestion> suggestions = new ArrayList<>();
-        
-        for (ChatCompletionChoice choice : completion.getChoices()) {
-            try {
-                String content = choice.getMessage().getContent();
-                
-                // Extract JSON from the response (might have extra text)
-                String jsonContent = extractJsonFromResponse(content);
-                
-                // Parse JSON - in production, use a proper JSON parser
-                RecipeSuggestion suggestion = parseRecipeFromContent(jsonContent);
-                
-                // Calculate confidence score based on pantry match
-                suggestion.setConfidenceScore(
-                    calculateConfidenceScore(suggestion, pantryItems)
-                );
-                
-                suggestions.add(suggestion);
-                
-            } catch (Exception e) {
-                log.warn("Failed to parse AI response: {}", e.getMessage());
+
+            List<RecipeSuggestion> suggestions = geminiService.generateRecipesWithGemini(pantryItems, request);
+
+            if (suggestions == null || suggestions.isEmpty()) {
+                log.info("Gemini returned empty, using fallback recipes");
+                suggestions = generateFallbackRecipes(pantryItems, request);
             }
+
+            return new RecipeGenerationResponse(
+                    suggestions,
+                    UUID.randomUUID().toString(),
+                    System.currentTimeMillis()
+            );
+
+        } catch (Exception e) {
+            log.error("Error generating recipes: {}", e.getMessage());
+
+            List<PantryItemDTO> itemsForFallback = pantryItems;
+            if (itemsForFallback == null) {
+                try {
+                    itemsForFallback = pantryServiceClient.getUserPantry(request.getUserId());
+                } catch (Exception ex) {
+                    log.error("Failed to fetch pantry items: {}", ex.getMessage());
+                    itemsForFallback = Collections.emptyList();
+                }
+            }
+
+            List<RecipeSuggestion> fallbackSuggestions = generateFallbackRecipes(itemsForFallback, request);
+
+            return new RecipeGenerationResponse(
+                    fallbackSuggestions,
+                    "fallback-" + UUID.randomUUID().toString(),
+                    System.currentTimeMillis()
+            );
         }
-        
-        return suggestions;
     }
-    
-    private String extractJsonFromResponse(String content) {
-        // Simple extraction - in production, use regex or proper parsing
-        int start = content.indexOf('{');
-        int end = content.lastIndexOf('}') + 1;
-        
-        if (start >= 0 && end > start) {
-            return content.substring(start, end);
-        }
-        
-        return content;
-    }
-    
-    private RecipeSuggestion parseRecipeFromContent(String jsonContent) {
-        // Simplified parsing - in production, use Jackson/ObjectMapper
-        // For now, return a mock suggestion
-        return new RecipeSuggestion(
-            "AI Generated Recipe",
-            "Delicious recipe generated based on your ingredients",
-            new ArrayList<>(),
-            Arrays.asList("Step 1: Prepare ingredients", "Step 2: Cook as directed"),
-            30,
-            4,
-            "medium",
-            "International",
-            0.8,
-            Arrays.asList("salt", "pepper")
+
+    private RecipeGenerationResponse createEmptyPantryResponse(RecipeGenerationRequest request) {
+        RecipeSuggestion emptyRecipe = new RecipeSuggestion(
+                "Pantry is Empty",
+                "Add some ingredients to your pantry to get recipe suggestions",
+                new ArrayList<>(),
+                Arrays.asList("1. Go to your pantry page", "2. Add ingredients you have", "3. Try generating recipes again"),
+                0,
+                request.getServings() != null ? request.getServings() : 0,
+                "easy",
+                "General",
+                0.0,
+                new ArrayList<>()
+        );
+
+        return new RecipeGenerationResponse(
+                Collections.singletonList(emptyRecipe),
+                "empty-pantry-" + UUID.randomUUID().toString(),
+                System.currentTimeMillis()
         );
     }
-    
-    private Double calculateConfidenceScore(RecipeSuggestion recipe, 
-                                           List<PantryItemDTO> pantryItems) {
-        Set<String> pantryItemNames = pantryItems.stream()
-            .map(item -> item.getName().toLowerCase())
-            .collect(Collectors.toSet());
-        
-        long matchingIngredients = recipe.getIngredients().stream()
-            .filter(ingredient -> pantryItemNames.contains(ingredient.getName().toLowerCase()))
-            .count();
-        
-        long totalIngredients = recipe.getIngredients().size();
-        
-        if (totalIngredients == 0) return 0.0;
-        
-        return (double) matchingIngredients / totalIngredients;
+
+    private List<PantryItemDTO> prioritizeExpiringItems(List<PantryItemDTO> allItems,
+            List<PantryItemDTO> expiringItems) {
+        Set<String> expiringNames = expiringItems.stream()
+                .map(PantryItemDTO::getName)
+                .collect(Collectors.toSet());
+
+        List<PantryItemDTO> prioritized = new ArrayList<>();
+
+        prioritized.addAll(allItems.stream()
+                .filter(item -> expiringNames.contains(item.getName()))
+                .collect(Collectors.toList()));
+
+        prioritized.addAll(allItems.stream()
+                .filter(item -> !expiringNames.contains(item.getName()))
+                .collect(Collectors.toList()));
+
+        return prioritized;
     }
-    
+
+
     private String categorizeIngredient(String ingredientName) {
         String name = ingredientName.toLowerCase();
-        
-        if (name.contains("chicken") || name.contains("beef") || name.contains("pork") || 
-            name.contains("fish") || name.contains("tofu") || name.contains("egg")) {
+
+        if (name.contains("chicken") || name.contains("beef") || name.contains("pork")
+                || name.contains("fish") || name.contains("tofu") || name.contains("egg")) {
             return "protein";
-        } else if (name.contains("rice") || name.contains("pasta") || name.contains("noodle") ||
-                  name.contains("bread") || name.contains("flour")) {
+        } else if (name.contains("rice") || name.contains("pasta") || name.contains("noodle")
+                || name.contains("bread") || name.contains("flour")) {
             return "grain";
-        } else if (name.contains("tomato") || name.contains("onion") || name.contains("garlic") ||
-                  name.contains("carrot") || name.contains("potato") || name.contains("broccoli")) {
+        } else if (name.contains("tomato") || name.contains("onion") || name.contains("garlic")
+                || name.contains("carrot") || name.contains("potato") || name.contains("broccoli")) {
             return "vegetable";
         } else if (name.contains("milk") || name.contains("cheese") || name.contains("yogurt")) {
             return "dairy";
@@ -619,4 +150,342 @@ public class AIChefService {
             return "other";
         }
     }
+
+    private List<RecipeSuggestion> generateFallbackRecipes(List<PantryItemDTO> pantryItems,
+            RecipeGenerationRequest preferences) {
+        List<RecipeSuggestion> fallbacks = new ArrayList<>();
+
+        Map<String, List<PantryItemDTO>> ingredientGroups = pantryItems.stream()
+                .collect(Collectors.groupingBy(item -> categorizeIngredient(item.getName())));
+
+        if (ingredientGroups.containsKey("vegetable") && ingredientGroups.containsKey("protein")) {
+            fallbacks.add(createStirFryRecipe(pantryItems, preferences));
+        }
+
+        if ((ingredientGroups.containsKey("pasta") || ingredientGroups.containsKey("grain"))
+                && (ingredientGroups.containsKey("sauce") || ingredientGroups.containsKey("tomato"))) {
+            fallbacks.add(createPastaRecipe(pantryItems, preferences));
+        }
+
+        if (ingredientGroups.containsKey("vegetable") && ingredientGroups.size() >= 3) {
+            fallbacks.add(createSoupRecipe(pantryItems, preferences));
+        }
+
+        if (ingredientGroups.containsKey("egg") && ingredientGroups.containsKey("vegetable")) {
+            fallbacks.add(createOmeletteRecipe(pantryItems, preferences));
+        }
+
+        if (ingredientGroups.containsKey("rice") && ingredientGroups.containsKey("vegetable")) {
+            fallbacks.add(createFriedRiceRecipe(pantryItems, preferences));
+        }
+
+        if (fallbacks.isEmpty() && !pantryItems.isEmpty()) {
+            fallbacks.add(createSimpleBowlRecipe(pantryItems, preferences));
+        }
+
+        return fallbacks;
+    }
+    private RecipeSuggestion createStirFryRecipe(List<PantryItemDTO> pantryItems,
+                                            RecipeGenerationRequest preferences) {
+    List<PantryItemDTO> vegetables = pantryItems.stream()
+        .filter(item -> categorizeIngredient(item.getName()).equals("vegetable"))
+        .limit(3)
+        .collect(Collectors.toList());
+    
+    List<PantryItemDTO> proteins = pantryItems.stream()
+        .filter(item -> categorizeIngredient(item.getName()).equals("protein"))
+        .limit(1)
+        .collect(Collectors.toList());
+    
+    List<IngredientDTO> ingredients = new ArrayList<>();
+    
+    vegetables.forEach(veg -> 
+        ingredients.add(new IngredientDTO(veg.getName(), 
+            Math.min(veg.getQuantity(), 200.0), "g")));
+    
+    proteins.forEach(protein -> 
+        ingredients.add(new IngredientDTO(protein.getName(), 
+            Math.min(protein.getQuantity(), 150.0), "g")));
+    
+    return new RecipeSuggestion(
+        "Quick Vegetable Stir Fry",
+        "A quick and healthy stir fry using your available vegetables and protein",
+        ingredients,
+        Arrays.asList(
+            "Chop all vegetables into bite-sized pieces",
+            "Cut protein into thin strips or cubes",
+            "Heat 1 tablespoon of oil in a wok or large pan over high heat",
+            "Cook protein first until browned, then remove from pan",
+            "Add vegetables and stir fry for 3-5 minutes until tender-crisp",
+            "Return protein to pan, add 2 tablespoons of soy sauce",
+            "Stir fry for another 1-2 minutes until everything is heated through",
+            "Serve hot over rice or noodles if available"
+        ),
+        20,
+        preferences.getServings() != null ? preferences.getServings() : 2,
+        "easy",
+        "Asian",
+        0.7,
+        Arrays.asList("cooking oil", "soy sauce", "garlic")
+    );
+}
+
+private RecipeSuggestion createPastaRecipe(List<PantryItemDTO> pantryItems,
+                                          RecipeGenerationRequest preferences) {
+    Optional<PantryItemDTO> pasta = pantryItems.stream()
+        .filter(item -> item.getName().toLowerCase().contains("pasta") || 
+                       item.getName().toLowerCase().contains("spaghetti") ||
+                       item.getName().toLowerCase().contains("noodle"))
+        .findFirst();
+    
+    List<PantryItemDTO> sauceIngredients = pantryItems.stream()
+        .filter(item -> item.getName().toLowerCase().contains("tomato") ||
+                       item.getName().toLowerCase().contains("sauce") ||
+                       item.getName().toLowerCase().contains("cream"))
+        .limit(3)
+        .collect(Collectors.toList());
+    
+    List<IngredientDTO> ingredients = new ArrayList<>();
+    
+    if (pasta.isPresent()) {
+        ingredients.add(new IngredientDTO(pasta.get().getName(), 
+            Math.min(pasta.get().getQuantity(), 200.0), "g"));
+    } else {
+        pantryItems.stream()
+            .filter(item -> categorizeIngredient(item.getName()).equals("grain"))
+            .findFirst()
+            .ifPresent(grain -> 
+                ingredients.add(new IngredientDTO(grain.getName(), 
+                    Math.min(grain.getQuantity(), 200.0), "g")));
+    }
+    
+    sauceIngredients.forEach(ing -> 
+        ingredients.add(new IngredientDTO(ing.getName(), 
+            Math.min(ing.getQuantity(), 150.0), "g")));
+    
+    pantryItems.stream()
+        .filter(item -> item.getName().toLowerCase().contains("cheese"))
+        .findFirst()
+        .ifPresent(cheese -> 
+            ingredients.add(new IngredientDTO(cheese.getName(), 
+                Math.min(cheese.getQuantity(), 50.0), "g")));
+    
+    return new RecipeSuggestion(
+        "Simple Pasta Dish",
+        pasta.isPresent() ? "A delicious pasta dish with your available ingredients" 
+                         : "Grain-based dish with flavorful sauce",
+        ingredients,
+        Arrays.asList(
+            "Cook the pasta/grain according to package instructions",
+            "While pasta cooks, chop sauce ingredients if needed",
+            "Heat 1 tablespoon of oil in a pan over medium heat",
+            "Add sauce ingredients and cook for 5-7 minutes until softened",
+            "Season with salt, pepper, and herbs if available",
+            "Drain pasta/grain and add to the sauce",
+            "Toss everything together until well coated",
+            "Grate cheese on top if available and serve immediately"
+        ),
+        25,
+        preferences.getServings() != null ? preferences.getServings() : 2,
+        "easy",
+        "Italian",
+        0.6,
+        Arrays.asList("salt", "pepper", "olive oil", "herbs")
+    );
+}
+
+private RecipeSuggestion createSoupRecipe(List<PantryItemDTO> pantryItems,
+                                         RecipeGenerationRequest preferences) {
+    List<PantryItemDTO> vegetables = pantryItems.stream()
+        .filter(item -> categorizeIngredient(item.getName()).equals("vegetable"))
+        .limit(4)
+        .collect(Collectors.toList());
+    
+    Optional<PantryItemDTO> protein = pantryItems.stream()
+        .filter(item -> categorizeIngredient(item.getName()).equals("protein"))
+        .findFirst();
+    
+    List<IngredientDTO> ingredients = new ArrayList<>();
+    
+    vegetables.forEach(veg -> 
+        ingredients.add(new IngredientDTO(veg.getName(), 
+            Math.min(veg.getQuantity(), 150.0), "g")));
+    
+    protein.ifPresent(p -> 
+        ingredients.add(new IngredientDTO(p.getName(), 
+            Math.min(p.getQuantity(), 100.0), "g")));
+    
+    pantryItems.stream()
+        .filter(item -> item.getName().toLowerCase().contains("broth") ||
+                       item.getName().toLowerCase().contains("stock"))
+        .findFirst()
+        .ifPresent(broth -> 
+            ingredients.add(new IngredientDTO(broth.getName(), 
+                Math.min(broth.getQuantity(), 500.0), "ml")));
+    
+    return new RecipeSuggestion(
+        "Hearty Vegetable Soup",
+        protein.isPresent() ? "Nourishing soup with vegetables and protein" 
+                           : "Simple vegetable soup",
+        ingredients,
+        Arrays.asList(
+            "Chop all vegetables into bite-sized pieces",
+            protein.map(p -> "Cut " + p.getName() + " into small cubes").orElse(""),
+            "Heat 1 tablespoon of oil in a large pot over medium heat",
+            "Add vegetables (and protein if using) and cook for 5 minutes",
+            "Add 4 cups of water or broth to the pot",
+            "Bring to a boil, then reduce heat and simmer for 20-25 minutes",
+            "Season with salt and pepper to taste",
+            "Serve hot with crusty bread if available"
+        ).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList()),
+        35,
+        preferences.getServings() != null ? preferences.getServings() : 4,
+        "easy",
+        "International",
+        0.8,
+        Arrays.asList("salt", "pepper", "herbs", "broth/stock")
+    );
+}
+
+private RecipeSuggestion createOmeletteRecipe(List<PantryItemDTO> pantryItems,
+                                             RecipeGenerationRequest preferences) {
+    List<PantryItemDTO> eggs = pantryItems.stream()
+        .filter(item -> item.getName().toLowerCase().contains("egg"))
+        .collect(Collectors.toList());
+    
+    List<PantryItemDTO> fillings = pantryItems.stream()
+        .filter(item -> categorizeIngredient(item.getName()).equals("vegetable") ||
+                       item.getName().toLowerCase().contains("cheese") ||
+                       item.getName().toLowerCase().contains("ham"))
+        .limit(3)
+        .collect(Collectors.toList());
+    
+    List<IngredientDTO> ingredients = new ArrayList<>();
+    
+    if (!eggs.isEmpty()) {
+        ingredients.add(new IngredientDTO("Eggs", 
+            Math.min(eggs.get(0).getQuantity(), 3.0), "pieces"));
+    }
+    
+    fillings.forEach(filling -> 
+        ingredients.add(new IngredientDTO(filling.getName(), 
+            Math.min(filling.getQuantity(), 50.0), "g")));
+    
+    return new RecipeSuggestion(
+        "Custom Omelette",
+        "Fluffy omelette filled with your available ingredients",
+        ingredients,
+        Arrays.asList(
+            "Chop filling ingredients into small pieces",
+            "Beat eggs in a bowl with a pinch of salt and pepper",
+            "Heat 1 teaspoon of butter or oil in a non-stick pan over medium heat",
+            "Add filling ingredients and cook for 2-3 minutes until softened",
+            "Pour beaten eggs over the fillings",
+            "Cook for 2-3 minutes until edges set, then gently lift edges",
+            "When top is nearly set, fold omelette in half",
+            "Slide onto plate and serve immediately"
+        ),
+        15,
+        1,
+        "easy",
+        "French",
+        0.9,
+        Arrays.asList("butter/oil", "salt", "pepper")
+    );
+}
+
+private RecipeSuggestion createFriedRiceRecipe(List<PantryItemDTO> pantryItems,
+                                              RecipeGenerationRequest preferences) {
+    Optional<PantryItemDTO> rice = pantryItems.stream()
+        .filter(item -> item.getName().toLowerCase().contains("rice"))
+        .findFirst();
+    
+    List<PantryItemDTO> mixins = pantryItems.stream()
+        .filter(item -> categorizeIngredient(item.getName()).equals("vegetable") ||
+                       categorizeIngredient(item.getName()).equals("protein") ||
+                       item.getName().toLowerCase().contains("egg"))
+        .limit(4)
+        .collect(Collectors.toList());
+    
+    List<IngredientDTO> ingredients = new ArrayList<>();
+    
+    rice.ifPresent(r -> 
+        ingredients.add(new IngredientDTO(r.getName(), 
+            Math.min(r.getQuantity(), 300.0), "g")));
+    
+    mixins.forEach(mixin -> 
+        ingredients.add(new IngredientDTO(mixin.getName(), 
+            Math.min(mixin.getQuantity(), 100.0), "g")));
+    
+    return new RecipeSuggestion(
+        "Fried Rice",
+        "Quick and versatile fried rice using leftover rice and available ingredients",
+        ingredients,
+        Arrays.asList(
+            "If rice is freshly cooked, spread it on a plate to cool slightly",
+            "Chop all mix-in ingredients into small, uniform pieces",
+            "Heat 2 tablespoons of oil in a wok or large pan over high heat",
+            "Add protein (if using) and cook until done, then remove",
+            "Add vegetables and cook for 2-3 minutes until tender-crisp",
+            "Push vegetables to one side, add beaten eggs if using and scramble",
+            "Add rice and break up any clumps",
+            "Add 2 tablespoons of soy sauce and stir fry for 2-3 minutes",
+            "Return protein to pan and mix everything together",
+            "Serve hot"
+        ),
+        20,
+        preferences.getServings() != null ? preferences.getServings() : 2,
+        "easy",
+        "Asian",
+        0.7,
+        Arrays.asList("cooking oil", "soy sauce", "garlic")
+    );
+}
+
+private RecipeSuggestion createSimpleBowlRecipe(List<PantryItemDTO> pantryItems,
+                                               RecipeGenerationRequest preferences) {
+    List<PantryItemDTO> grains = pantryItems.stream()
+        .filter(item -> categorizeIngredient(item.getName()).equals("grain") ||
+                       item.getName().toLowerCase().contains("rice") ||
+                       item.getName().toLowerCase().contains("quinoa"))
+        .limit(1)
+        .collect(Collectors.toList());
+    
+    List<PantryItemDTO> toppings = pantryItems.stream()
+        .filter(item -> !categorizeIngredient(item.getName()).equals("grain"))
+        .limit(5)
+        .collect(Collectors.toList());
+    
+    List<IngredientDTO> ingredients = new ArrayList<>();
+    
+    if (!grains.isEmpty()) {
+        ingredients.add(new IngredientDTO(grains.get(0).getName(), 
+            Math.min(grains.get(0).getQuantity(), 150.0), "g"));
+    }
+    
+    toppings.forEach(topping -> 
+        ingredients.add(new IngredientDTO(topping.getName(), 
+            Math.min(topping.getQuantity(), 75.0), "g")));
+    
+    return new RecipeSuggestion(
+        "Simple Grain Bowl",
+        "Customizable bowl with grains and your available toppings",
+        ingredients,
+        Arrays.asList(
+            grains.isEmpty() ? "Arrange your ingredients attractively on a plate" 
+                            : "Cook grain according to package instructions",
+            "Prepare toppings: chop vegetables, cook protein if needed",
+            "If using dressing, whisk together 3 parts oil to 1 part acid (vinegar/lemon)",
+            "Place grain in bowl (if using) and arrange toppings on top",
+            "Drizzle with dressing or sauce if available",
+            "Season with salt and pepper to taste"
+        ),
+        15,
+        preferences.getServings() != null ? preferences.getServings() : 1,
+        "very easy",
+        "International",
+        0.95,
+        Arrays.asList("salt", "pepper", "dressing ingredients")
+    );
+}
 }
