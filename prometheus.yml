@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['api-gateway:8080']
+
+  - job_name: 'user-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['user-service:8081']
+
+  - job_name: 'pantry-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['pantry-service:8082']
+
+  - job_name: 'recipe-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['recipe-service:8083']
+
+  - job_name: 'ai-chef-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ai-chef-service:8084']
