@@ -27,7 +27,6 @@ public class AIChefController {
     
     private final AIChefService aiChefService;
     
-    // Constructor injection (no Lombok)
     public AIChefController(AIChefService aiChefService) {
         this.aiChefService = aiChefService;
     }

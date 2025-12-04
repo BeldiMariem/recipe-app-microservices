@@ -41,7 +41,7 @@ services:
     environment:
       POSTGRES_DB: recipedb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${RECIPE_DB_PASSWORD:-password}
+      POSTGRES_PASSWORD:  ${RECIPE_DB_PASSWORD:-password}
     ports:
       - "5434:5432"
     networks:
@@ -157,6 +157,28 @@ services:
       - pantry-service
     networks:
       - recipe-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - recipe-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - recipe-network
+    depends_on:
+      - prometheus
 
 networks:
   recipe-network:
