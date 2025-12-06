@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pantry-service
+  labels:
+    io.kompose.service: pantry-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: pantry-service
+  template:
+    metadata:
+      labels:
+        io.kompose.service: pantry-service
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: busybox
+          command: ['sh', '-c', 'until nc -z recipe-db 5432; do echo waiting for recipe-db; sleep 2; done;']
+      containers:
+        - name: pantry-service
+          image: mariem19/pantry-service:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: password
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://pantry-db:5432/pantrydb
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8082/actuator/health
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+      restartPolicy: Always
