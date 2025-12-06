@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recipe-db
+  labels:
+    app: recipe-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recipe-db
+  template:
+    metadata:
+      labels:
+        app: recipe-db
+    spec:
+      containers:
+        - name: recipe-db
+          image: postgres:13
+          env:
+            - name: POSTGRES_DB
+              value: recipedb
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: password
+          ports:
+            - containerPort: 5432
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5

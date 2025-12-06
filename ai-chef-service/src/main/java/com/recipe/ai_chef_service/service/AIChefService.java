@@ -12,10 +12,12 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.recipe.ai_chef_service.client.PantryServiceClient;
 import com.recipe.ai_chef_service.dto.IngredientDTO;
 import com.recipe.ai_chef_service.dto.PantryItemDTO;
 import com.recipe.ai_chef_service.dto.RecipeGenerationRequest;
@@ -28,28 +30,31 @@ public class AIChefService {
     private static final Logger log = LoggerFactory.getLogger(AIChefService.class);
 
     private final GeminiService geminiService;
-    private final PantryServiceClient pantryServiceClient;
+    private final WebClient pantryServiceWebClient;
 
     @Value("${recipe.generation.use-expiring-first:true}")
     private boolean useExpiringFirst;
 
-    public AIChefService(GeminiService geminiService, PantryServiceClient pantryServiceClient) {
+    public AIChefService(
+        GeminiService geminiService,
+        @Qualifier("pantryServiceWebClient") WebClient pantryServiceWebClient
+    ) {
         this.geminiService = geminiService;
-        this.pantryServiceClient = pantryServiceClient;
+        this.pantryServiceWebClient = pantryServiceWebClient;
     }
 
     public RecipeGenerationResponse generateRecipes(RecipeGenerationRequest request) {
         List<PantryItemDTO> pantryItems = null;
 
         try {
-            pantryItems = pantryServiceClient.getUserPantry(request.getUserId());
+            pantryItems = getPantryItemsFromService(request.getUserId());
 
             if (pantryItems.isEmpty()) {
                 return createEmptyPantryResponse(request);
             }
 
             if (useExpiringFirst) {
-                List<PantryItemDTO> expiringItems = pantryServiceClient.getExpiringItems(request.getUserId());
+                List<PantryItemDTO> expiringItems = getExpiringItemsFromService(request.getUserId());
                 pantryItems = prioritizeExpiringItems(pantryItems, expiringItems);
             }
 
@@ -67,12 +72,12 @@ public class AIChefService {
             );
 
         } catch (Exception e) {
-            log.error("Error generating recipes: {}", e.getMessage());
+            log.error("Error generating recipes: {}", e.getMessage(), e);
 
             List<PantryItemDTO> itemsForFallback = pantryItems;
             if (itemsForFallback == null) {
                 try {
-                    itemsForFallback = pantryServiceClient.getUserPantry(request.getUserId());
+                    itemsForFallback = getPantryItemsFromService(request.getUserId());
                 } catch (Exception ex) {
                     log.error("Failed to fetch pantry items: {}", ex.getMessage());
                     itemsForFallback = Collections.emptyList();
@@ -86,6 +91,38 @@ public class AIChefService {
                     "fallback-" + UUID.randomUUID().toString(),
                     System.currentTimeMillis()
             );
+        }
+    }
+
+    private List<PantryItemDTO> getPantryItemsFromService(String userId) {
+        try {
+            return pantryServiceWebClient
+                .get()
+                .uri("/api/pantry/items")
+                .header("User-Id", userId)
+                .retrieve()
+                .bodyToFlux(PantryItemDTO.class)
+                .collectList()
+                .block();
+        } catch (Exception e) {
+            log.error("Error fetching pantry items for user {}: {}", userId, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    private List<PantryItemDTO> getExpiringItemsFromService(String userId) {
+        try {
+            return pantryServiceWebClient
+                .get()
+                .uri("/api/pantry/items/expiring")
+                .header("User-Id", userId)
+                .retrieve()
+                .bodyToFlux(PantryItemDTO.class)
+                .collectList()
+                .block();
+        } catch (Exception e) {
+            log.error("Error fetching expiring items for user {}: {}", userId, e.getMessage());
+            return Collections.emptyList();
         }
     }
 
