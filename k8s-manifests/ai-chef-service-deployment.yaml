@@ -1,9 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ai-chef-service
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe -f docker-compose.yml convert -o k8s-manifests
+    kompose.version: 1.37.0 (fb0539e64)
   labels:
     io.kompose.service: ai-chef-service
+  name: ai-chef-service
 spec:
   replicas: 1
   selector:
@@ -11,20 +14,21 @@ spec:
       io.kompose.service: ai-chef-service
   template:
     metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe -f docker-compose.yml convert -o k8s-manifests
+        kompose.version: 1.37.0 (fb0539e64)
       labels:
         io.kompose.service: ai-chef-service
     spec:
       containers:
-        - name: ai-chef-service
-          image: mariem19/ai-chef-service:latest
-          ports:
-            - containerPort: 8084
-          env:
+        - env:
             - name: GEMINI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: ai-chef-secret
-                  key: GEMINI_API_KEY
+              value: AIzaSyABqoh8L3nd0d9_9WmrEwVk9xF2_JKAsqw
             - name: SPRING_PROFILES_ACTIVE
               value: docker
+          image: mariem19/ai-chef-service:latest
+          name: ai-chef-service
+          ports:
+            - containerPort: 8084
+              protocol: TCP
       restartPolicy: Always
