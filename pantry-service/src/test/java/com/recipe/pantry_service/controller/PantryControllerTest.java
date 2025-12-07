@@ -1,15 +1,15 @@
 package com.recipe.pantry_service.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.recipe.pantry_service.dto.AddPantryItemRequest;
 import com.recipe.pantry_service.dto.PantryItemResponse;
 import com.recipe.pantry_service.service.PantryService;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,21 +20,33 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import static org.hamcrest.Matchers.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(PantryController.class)
+import tools.jackson.databind.ObjectMapper;
+
+@ExtendWith(MockitoExtension.class)
 class PantryControllerTest {
-
-    @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+    
+    @Mock
     private PantryService pantryService;
+    
+    @InjectMocks
+    private PantryController pantryController;
+    
+    private ObjectMapper objectMapper = new ObjectMapper();
+    
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(pantryController).build();
+    }
+
 
     private final String USER_ID = "user123";
     private final String USER_HEADER = "User-Id";

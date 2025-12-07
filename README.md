@@ -1,17 +1,24 @@
 
+
+
+
 # 🍽️ **Recipe App - Microservices Backend**
 
 ## 📋 Project Overview
 
-A backend microservices architecture for a recipe management application. This system helps users manage their pantry and generate AI-powered recipes based on available ingredients.
+This backend microservices project manages recipes, pantries, and AI-powered recipe generation.  
+
+Recently, all services have been upgraded to **Spring Boot 4** to take advantage of the latest features and full support for **Java 21**. Previously, service discovery relied on **Eureka Server**, but to follow modern cloud-native practices, we've migrated to **Kubernetes** for orchestration. This change allows services to scale automatically, simplifies deployment, and ensures better resilience and observability. These updates make the system more maintainable, performant, and aligned with current industry standards for microservices architecture.
+
 
 ## 🏗️ Architecture Diagram (Kubernetes-based)
 
 ```
+
 ┌──────────────────────────────────────────────────────────────┐
 │                    Client Requests                           │
 └──────────────────────────────┬───────────────────────────────┘
-                               │
+│
 ┌──────────────────────────────▼───────────────────────────────┐
 │                    API Gateway (Port: 8080)                  │
 └─────┬────────────────┬────────────────┬────────────────┬─────┘
@@ -21,28 +28,29 @@ A backend microservices architecture for a recipe management application. This s
 │ Service   │    │ Service     │  │ Service     │  │ Service    │
 │(Port:8081)│    │ (Port:8082) │  │ (Port:8084) │  │(Port:8083) │
 └───────────┘    └─────────────┘  └─────────────┘  └────────────┘
-      │                │                │                │
+│                │                │                │
 ┌─────▼─────┐   ┌──────▼──────┐  ┌──────▼──────┐  ┌──────▼──────┐
 │PostgreSQL │   │ PostgreSQL  │  │ Google      │  │ PostgreSQL  │
 │(Port:5432)│   │ (Port:5433) │  │ Gemini AI   │  │ (Port:5434) │
-└───────────┘   └─────────────┘  └─────────────┘  └─────────────┘
+└───────────┘   └─────────────┘  └─────────────┘  └────────────┘
       │                │                │                │
 ┌─────▼────────────────▼────────────────▼────────────────▼──────┐
 │                    Monitoring Stack                           │
 │             Prometheus (9090) + Grafana (3000)                │
 └───────────────────────────────────────────────────────────────┘
-```
+
+````
 
 ## 🚀 Technology Stack
 
 ### **Backend Microservices:**
 
 * **Java 21**
-* **Spring Boot 3.x**
+* **Spring Boot 4** for all services
 * **Spring Security** with JWT authentication
 * **Spring Data JPA** for database operations
 * **Spring Cloud Gateway** for API routing
-* **Kubernetes** for service orchestration (replacing Eureka service discovery)
+* **Kubernetes** for modern service orchestration (replacing Eureka)
 * **PostgreSQL** for data persistence
 * **Google Gemini AI** for recipe generation
 * **Docker** for containerization
@@ -76,7 +84,7 @@ Centralized entry point handling request routing, JWT validation, rate limiting,
 
 #### **3. User Service** (`user-service` | Port: `8081`)
 
-Authentication and authorization service providing user registration/login, JWT token management, and role-based access control with Spring Security 6.
+Authentication and authorization service providing user registration/login, JWT token management, and role-based access control with **Spring Security 6**.
 
 **Database:** PostgreSQL (`userdb`)
 
@@ -107,13 +115,14 @@ Intelligent recipe generator using **Google Gemini AI** (Gemini 2.0 Flash) to cr
 
 ## 🎯 Key Technical Achievements
 
-✅ **Migrated service discovery from Eureka to Kubernetes**
-✅ **Complete Microservices Architecture** with health probes and readiness checks
-✅ **JWT-based Security** with API Gateway validation
-✅ **AI Integration** using Google Gemini for intelligent recipe generation
-✅ **Containerized Deployment** with Docker & Kubernetes
-✅ **Comprehensive Testing** including unit and controller tests
-✅ **Monitoring Stack** with Prometheus and Grafana
+✅ **Upgraded all microservices to Spring Boot 4**  
+✅ **Migrated service discovery from Eureka to Kubernetes** for modern cloud-native orchestration  
+✅ **Complete Microservices Architecture** with health probes and readiness checks  
+✅ **JWT-based Security** with API Gateway validation  
+✅ **AI Integration** using Google Gemini for intelligent recipe generation  
+✅ **Containerized Deployment** with Docker & Kubernetes  
+✅ **Comprehensive Testing** including unit and controller tests  
+✅ **Monitoring Stack** with Prometheus and Grafana  
 
 ## 🚀 Quick Start Guide
 
@@ -131,7 +140,7 @@ cd recipe-app-microservices
 # Create environment file
 cp .env.example .env
 # Edit .env with your Gemini API key
-```
+````
 
 ### **2. Apply Kubernetes Manifests:**
 
@@ -163,4 +172,5 @@ recipe-app-microservices/
 └── README.md            # Documentation
 ```
 
----
+
+
