@@ -54,6 +54,7 @@ Recently, all services have been upgraded to **Spring Boot 4** to take advantage
 * **PostgreSQL** for data persistence
 * **Google Gemini AI** for recipe generation
 * **Docker** for containerization
+* **GitHub Actions** for CI/CD pipeline – automates building, testing, Docker image creation, and deployment to Kubernetes
 
 ### **Monitoring & Observability:**
 
@@ -66,6 +67,7 @@ Recently, all services have been upgraded to **Spring Boot 4** to take advantage
 * **JUnit 5** for unit testing
 * **Mockito** for mocking
 * **Spring Boot Test** for controller testing
+---
 
 ## 📦 Microservices Breakdown
 
@@ -113,6 +115,7 @@ Intelligent recipe generator using **Google Gemini AI** (Gemini 2.0 Flash) to cr
 
 **AI Integration:** Handles Google Gemini API calls with advanced prompt engineering.
 
+
 ## 🎯 Key Technical Achievements
 
 ✅ **Upgraded all microservices to Spring Boot 4**  
@@ -123,6 +126,18 @@ Intelligent recipe generator using **Google Gemini AI** (Gemini 2.0 Flash) to cr
 ✅ **Containerized Deployment** with Docker & Kubernetes  
 ✅ **Comprehensive Testing** including unit and controller tests  
 ✅ **Monitoring Stack** with Prometheus and Grafana  
+
+## ⚙️ CI/CD Pipeline
+
+To streamline development and deployment, this project includes a **full CI/CD pipeline using GitHub Actions**. Every time changes are pushed or a pull request is opened on the `main` branch, the pipeline automatically:
+
+**1. Checks out the code** for each microservice.
+
+**2. Builds and tests** each service using **Java 21** and **Maven**.
+
+**3. Builds Docker images** for all services and pushes them to **Docker Hub**.
+
+**4.** Optionally, it can deploy to **Kubernetes**, ensuring the latest version of each service is running in a cloud-native environment.
 
 ## 🚀 Quick Start Guide
 
