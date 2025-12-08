@@ -1,0 +1,378 @@
+<div class="home-page">
+    <!-- Modern Hero Section -->
+    <section class="hero-section">
+        <!-- Background Elements -->
+        <div class="hero-background">
+            <div class="bg-gradient"></div>
+            <div class="bg-pattern"></div>
+            <div class="bg-blur"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="hero-container">
+            <div class="hero-content">
+                <!-- Left Column - Text Content -->
+                <div class="hero-text-content">
+                    <div class="hero-badge">
+                        <span class="badge-icon">🎯</span>
+                        <span class="badge-text">AI-Powered Cooking</span>
+                    </div>
+
+                    <h1 class="hero-title">
+                        Cook Smarter,
+                        <span class="highlight">Not Harder</span>
+                    </h1>
+
+                    <p class="hero-description">
+                        Transform your kitchen with intelligent recipe suggestions,
+                        pantry management, and a community of passionate home cooks.
+                    </p>
+
+                    <div class="hero-cta">
+                        <a routerLink="/register" class="btn btn-primary">
+                            <span>Start Free Trial</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                        <a routerLink="/login" class="btn btn-outline">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span>Sign In</span>
+                        </a>
+                    </div>
+
+                    <div class="hero-features">
+                        <div class="feature">
+                            <i class="bi bi-lightning"></i>
+                            <span>AI Recipe Generator</span>
+                        </div>
+                        <div class="feature">
+                            <i class="bi bi-share"></i>
+                            <span>Community Recipes</span>
+                        </div>
+                        <div class="feature">
+                            <i class="bi bi-graph-up"></i>
+                            <span>Nutrition Insights</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Visual Content -->
+                <div class="hero-visual-content">
+                    <div class="recipe-showcase">
+                        <div class="showcase-card card-1">
+                            <div class="card-header">
+                                <div class="card-badge trending">
+                                    <i class="bi bi-fire"></i>
+                                    Trending
+                                </div>
+                                <div class="card-image">
+                                    <div class="image-placeholder gradient-1">
+                                        <i class="bi bi-egg-fried"></i>
+                                        <div class="image-overlay"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h4>Mediterranean Bowl</h4>
+                                <div class="card-meta">
+                                    <span><i class="bi bi-clock"></i> 25 min</span>
+                                    <span><i class="bi bi-people"></i> 2 servings</span>
+                                </div>
+                                <div class="card-stats">
+                                    <div class="stat">
+                                        <i class="bi bi-heart"></i>
+                                        <span>1.2K</span>
+                                    </div>
+                                    <div class="stat">
+                                        <i class="bi bi-star"></i>
+                                        <span>4.8</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="showcase-card card-2">
+                            <div class="card-header">
+                                <div class="card-badge quick">
+                                    <i class="bi bi-lightning"></i>
+                                    Quick
+                                </div>
+                                <div class="card-image">
+                                    <div class="image-placeholder gradient-2">
+                                        <i class="bi bi-cup-straw"></i>
+                                        <div class="image-overlay"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h4>Avocado Toast Deluxe</h4>
+                                <div class="card-meta">
+                                    <span><i class="bi bi-clock"></i> 10 min</span>
+                                    <span><i class="bi bi-people"></i> 1 serving</span>
+                                </div>
+                                <div class="card-stats">
+                                    <div class="stat">
+                                        <i class="bi bi-heart"></i>
+                                        <span>890</span>
+                                    </div>
+                                    <div class="stat">
+                                        <i class="bi bi-star"></i>
+                                        <span>4.9</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="showcase-card card-3">
+                            <div class="card-header">
+                                <div class="card-badge premium">
+                                    <i class="bi bi-award"></i>
+                                    Premium
+                                </div>
+                                <div class="card-image">
+                                    <div class="image-placeholder gradient-3">
+                                        <i class="bi bi-cake"></i>
+                                        <div class="image-overlay"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h4>Chocolate Lava Cake</h4>
+                                <div class="card-meta">
+                                    <span><i class="bi bi-clock"></i> 40 min</span>
+                                    <span><i class="bi bi-people"></i> 6 servings</span>
+                                </div>
+                                <div class="card-stats">
+                                    <div class="stat">
+                                        <i class="bi bi-heart"></i>
+                                        <span>2.3K</span>
+                                    </div>
+                                    <div class="stat">
+                                        <i class="bi bi-star"></i>
+                                        <span>4.7</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recipes Section -->
+    <section class="recipes-section" id="recipes">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="bi bi-fire"></i>
+                    Trending Now
+                </div>
+                <h2>Fresh Community Recipes</h2>
+                <p>Discover what our community is cooking right now</p>
+            </div>
+
+            <!-- Loading State -->
+            <div *ngIf="isLoading" class="loading-state">
+                <div class="loading-animation">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                <p>Loading fresh recipes...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!isLoading && publicRecipes.length === 0" class="empty-state">
+                <div class="empty-state-animation">
+                    <div class="empty-icon">🍳</div>
+                    <div class="empty-pulse"></div>
+                </div>
+                <h3>No recipes yet</h3>
+                <p>Be the first to share your culinary masterpiece!</p>
+                <a routerLink="/register" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Create Recipe</span>
+                </a>
+            </div>
+
+            <!-- Recipes Grid -->
+            <div *ngIf="!isLoading && publicRecipes.length > 0" class="recipes-grid">
+                <div class="recipe-card" *ngFor="let recipe of publicRecipes" (click)="viewRecipeDetails(recipe.id!)">
+                    <div class="recipe-card-inner">
+                        <!-- Recipe Image -->
+                        <div class="recipe-image-container">
+                            <div class="recipe-image-wrapper">
+                                <img *ngIf="recipe.imageUrl" [src]="recipe.imageUrl" [alt]="recipe.title"
+                                    class="recipe-img" (error)="handleImageError($event, recipe.id!)">
+                                <div *ngIf="!recipe.imageUrl" class="recipe-img-placeholder">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <div class="recipe-overlay">
+                                    <button class="save-button">
+                                        <i class="bi bi-bookmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="recipe-badge" [ngClass]="getDifficultyClass(recipe.difficulty)">
+                                {{ getDifficultyText(recipe.difficulty) }}
+                            </div>
+                        </div>
+
+                        <div class="recipe-content">
+                            <div class="recipe-header">
+                                <div class="recipe-time">
+                                    <i class="bi bi-clock"></i>
+                                    {{ recipe.preparationTime }} min
+                                </div>
+                                <div class="recipe-rating">
+                                    <i class="bi bi-star-fill"></i>
+                                    {{ recipe.rating || '4.5' }}
+                                </div>
+                            </div>
+
+                            <h3 class="recipe-title">{{ recipe.title }}</h3>
+                            <p class="recipe-description">
+                                {{ recipe.description | slice:0:120 }}
+                                {{ recipe.description && recipe.description.length > 120 ? '...' : '' }}
+                            </p>
+
+                            <div class="recipe-meta">
+                                <div class="meta-item">
+                                    <i class="bi bi-people"></i>
+                                    Serves {{ recipe.servings }}
+                                </div>
+                                <div class="meta-item">
+                                    <i class="bi bi-list-check"></i>
+                                    {{ recipe.ingredients?.length || 0 }} ingredients
+                                </div>
+                            </div>
+
+                            <div class="recipe-footer">
+                                <div class="recipe-author">
+                                    <div class="author-avatar">
+                                        {{ recipe.userId?.charAt(0) || 'C' }}
+                                    </div>
+                                    <span>By {{ recipe.userId || 'Community' }}</span>
+                                </div>
+                                <button class="btn-view">
+                                    <span>View Recipe</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="bi bi-stars"></i>
+                    Why Choose Us
+                </div>
+                <h2>Smart Kitchen, Smarter Cooking</h2>
+                <p>Everything you need to transform your cooking experience</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <div class="icon-wrapper gradient-1">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                    </div>
+                    <h3>AI Chef Assistant</h3>
+                    <p>Get personalized recipe suggestions based on ingredients, dietary preferences, and cooking style.
+                    </p>
+                    <a href="#" class="feature-link">
+                        Learn more
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <div class="icon-wrapper gradient-2">
+                            <i class="bi bi-basket"></i>
+                        </div>
+                    </div>
+                    <h3>Smart Pantry</h3>
+                    <p>Track ingredients, reduce waste, and get notified when you're running low on essentials.</p>
+                    <a href="#" class="feature-link">
+                        Learn more
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <div class="icon-wrapper gradient-3">
+                            <i class="bi bi-share"></i>
+                        </div>
+                    </div>
+                    <h3>Community Recipes</h3>
+                    <p>Share your creations and discover unique recipes from home cooks worldwide.</p>
+                    <a href="#" class="feature-link">
+                        Learn more
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <div class="icon-wrapper gradient-4">
+                            <i class="bi bi-phone"></i>
+                        </div>
+                    </div>
+                    <h3>Mobile Experience</h3>
+                    <p>Access recipes, pantry, and meal planner from anywhere with our mobile app.</p>
+                    <a href="#" class="feature-link">
+                        Learn more
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-card">
+                <div class="cta-content">
+                    <div class="cta-badge">
+                        <i class="bi bi-rocket-takeoff"></i>
+                        Ready to Start?
+                    </div>
+                    <h2>Join Thousands of Happy Cooks</h2>
+                    <p>Start your culinary journey today with our 14-day free trial. No credit card required.</p>
+                    <div class="cta-buttons">
+                        <a routerLink="/register" class="btn btn-primary">
+                            <span>Get Started Free</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                        <a routerLink="/login" class="btn btn-outline">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span>Sign In</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="cta-visual">
+                    <div class="cta-image">
+                        <div class="image-placeholder">
+                            <i class="bi bi-phone"></i>
+                            <div class="image-text">Available on iOS & Android</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
