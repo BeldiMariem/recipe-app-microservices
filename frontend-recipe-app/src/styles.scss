@@ -1,1 +1,127 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #8B5CF6;     
+  --primary-light: #A78BFA;      
+  --secondary-color: #10B981;    
+  --accent-color: #F59E0B;       
+  --light-color: #F9FAFB;        
+  --light-gray: #E5E7EB;        
+  --medium-gray: #9CA3AF;        
+  --dark-color: #111827;         
+  --card-bg: #FFFFFF;           
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  --shadow-hover: rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--light-color);
+  color: var(--dark-color);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.shadow-subtle {
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.shadow-medium {
+  box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+.shadow-hover {
+  box-shadow: 0 8px 30px var(--shadow-hover);
+}
+
+.rounded-lg {
+  border-radius: 12px;
+}
+
+.rounded-xl {
+  border-radius: 16px;
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+  border: 1px solid var(--light-gray);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px var(--shadow-hover);
+    border-color: var(--primary-light);
+  }
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  border: none;
+  
+  &-primary {
+    background-color: var(--primary-color);
+    color: white;
+    
+    &:hover {
+      background-color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+  }
+  
+  &-outline-primary {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    background: transparent;
+    
+    &:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+  }
+  
+  &-light {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    border: 1px solid var(--light-gray);
+    
+    &:hover {
+      background-color: var(--light-gray);
+      border-color: var(--medium-gray);
+    }
+  }
+  
+  &-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    
+    &:hover {
+      color: var(--primary-light);
+      text-decoration: underline;
+    }
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

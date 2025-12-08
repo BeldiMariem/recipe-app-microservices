@@ -30,7 +30,9 @@ public class JwtExtractionFilter implements GlobalFilter, Ordered {
         if (path.startsWith("/auth/")) {
             return chain.filter(exchange);
         }
-        
+        if (path.startsWith("/api/recipes/public")) {
+            return chain.filter(exchange);
+        }
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);

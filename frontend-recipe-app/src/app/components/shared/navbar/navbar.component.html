@@ -1,0 +1,133 @@
+<nav class="navbar">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/">
+      <div class="brand-wrapper">
+        <div class="brand-icon">
+          <i class="bi bi-egg-fried"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">RecipeGenuis</span>
+          <span class="brand-tagline">Smart Cooking</span>
+        </div>
+      </div>
+    </a>
+
+    <button class="navbar-toggle" (click)="toggleMenu()" [class.active]="isMenuOpen">
+      <span class="toggle-line"></span>
+      <span class="toggle-line"></span>
+      <span class="toggle-line"></span>
+    </button>
+
+    <div class="navbar-menu" [class.active]="isMenuOpen">
+      <div class="nav-section">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/" routerLinkActive="active" (click)="closeMenu()">
+              <i class="bi bi-house-door"></i>
+              <span>Home</span>
+            </a>
+          </li>
+          
+          <li class="nav-item" *ngIf="isLoggedIn">
+            <a class="nav-link" routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">
+              <i class="bi bi-speedometer2"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          
+          <li class="nav-item" *ngIf="isLoggedIn">
+            <a class="nav-link" routerLink="/pantry" routerLinkActive="active" (click)="closeMenu()">
+              <i class="bi bi-cup-straw"></i>
+              <span>Pantry</span>
+            </a>
+          </li>
+          
+   
+          
+          <li class="nav-item" *ngIf="isLoggedIn">
+            <a class="nav-link premium" routerLink="/ai-chef" routerLinkActive="active" (click)="closeMenu()">
+              <i class="bi bi-magic"></i>
+              <span>AI Chef</span>
+              <span class="nav-badge premium-badge">
+                <i class="bi bi-stars"></i>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-section user-section">
+        <ng-container *ngIf="!isLoggedIn">
+          <div class="auth-buttons">
+            <a class="btn btn-outline" routerLink="/login" (click)="closeMenu()">
+              <i class="bi bi-box-arrow-in-right"></i>
+              <span>Sign In</span>
+            </a>
+            <a class="btn btn-primary" routerLink="/register" (click)="closeMenu()">
+              <i class="bi bi-person-plus"></i>
+              <span>Get Started</span>
+            </a>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="isLoggedIn">
+          <div class="user-profile" (click)="toggleUserMenu()">
+            <div class="user-avatar">
+              <span class="avatar-text">{{ currentUser?.username?.charAt(0) || 'U' }}</span>
+              <div class="avatar-status"></div>
+            </div>
+            <div class="user-info">
+              <div class="user-name">{{ currentUser?.username || 'User' }}</div>
+              <div class="user-role">Premium Member</div>
+            </div>
+            <i class="bi bi-chevron-down dropdown-arrow" [class.rotated]="isUserMenuOpen"></i>
+          </div>
+
+          <div class="user-dropdown" [class.active]="isUserMenuOpen">
+            <div class="dropdown-header">
+              <div class="dropdown-avatar">
+                <span>{{ currentUser?.username?.charAt(0) || 'U' }}</span>
+              </div>
+              <div class="dropdown-user-info">
+                <div class="dropdown-name">{{ currentUser?.username || 'User' }}</div>
+                <div class="dropdown-email">{{ currentUser?.email || 'user@example.com' }}</div>
+              </div>
+            </div>
+            
+            <div class="dropdown-divider"></div>
+            
+            <div class="dropdown-menu">
+              <a class="dropdown-item" routerLink="/dashboard" (click)="closeMenu()">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+              </a>
+              <a class="dropdown-item" routerLink="/profile" (click)="closeMenu()">
+                <i class="bi bi-person-circle"></i>
+                <span>My Profile</span>
+              </a>
+              <a class="dropdown-item" routerLink="/settings" (click)="closeMenu()">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
+              </a>
+              <a class="dropdown-item" routerLink="/saved-recipes" (click)="closeMenu()">
+                <i class="bi bi-bookmark-heart"></i>
+                <span>Saved Recipes</span>
+              </a>
+            </div>
+            
+            <div class="dropdown-divider"></div>
+            
+            <div class="dropdown-footer">
+              <a class="dropdown-item logout" (click)="logout($event)">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Log Out</span>
+              </a>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="menu-overlay" [class.active]="isMenuOpen" (click)="closeMenu()"></div>
+  </div>
+</nav>

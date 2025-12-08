@@ -1,0 +1,57 @@
+<div class="dashboard fade-in">
+  <div class="dashboard-header shadow-medium">
+    <h3>Welcome back, <span class="username">{{ currentUser?.username }}! 👋</span></h3>
+    <p class="mb-0">What would you like to cook today?</p>
+  </div>
+
+  <div class="dashboard-cards row g-4">
+    <div class="col-md-3 mb-3">
+      <div class="card feature-card feature-card-primary card-hover">
+        <div class="card-body">
+          <h5 class="card-title">🥫 Pantry Items</h5>
+          <p class="card-text">Manage your ingredients and track expiration dates</p>
+          <a routerLink="/pantry" class="btn">Go to Pantry</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+      <div class="card feature-card feature-card-success card-hover">
+        <div class="card-body">
+          <h5 class="card-title">📖 Recipes</h5>
+          <p class="card-text">Browse, create, and save your favorite recipes</p>
+          <a routerLink="/recipes" class="btn">Go to Recipes</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+      <div class="card feature-card feature-card-info card-hover">
+        <div class="card-body">
+          <h5 class="card-title">🤖 AI Chef</h5>
+          <p class="card-text">Get personalized recipe suggestions based on your pantry</p>
+          <a routerLink="/ai-chef" class="btn">Try AI Chef</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+      <div class="card feature-card feature-card-warning card-hover">
+        <div class="card-body">
+          <h5 class="card-title">⏰ Use It Up</h5>
+          <p class="card-text">Recipes using ingredients that are about to expire</p>
+          <a routerLink="/recipes" [queryParams]="{filter: 'expiring'}" class="btn">View Recipes</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="dashboard-actions shadow-subtle">
+    <h4>Quick Actions</h4>
+    <div class="btn-group" role="group">
+      <button type="button" class="btn" routerLink="/pantry">➕ Add Pantry Item</button>
+      <button type="button" class="btn" routerLink="/recipes">📝 Create Recipe</button>
+      <button type="button" class="btn" routerLink="/ai-chef">🤖 Generate Recipes</button>
+    </div>
+  </div>
+</div>
