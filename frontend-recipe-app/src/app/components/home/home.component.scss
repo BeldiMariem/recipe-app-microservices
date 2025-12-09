@@ -1116,7 +1116,6 @@ $border-radius-xl: 20px;
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: $border-radius-xl;
         padding: 60px;
-        display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 60px;
         align-items: center;
@@ -1193,32 +1192,7 @@ $border-radius-xl: 20px;
         }
     }
 
-    .cta-visual {
-        .cta-image {
-            width: 100%;
-            height: 300px;
-            border-radius: $border-radius-lg;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-
-            i {
-                font-size: 4rem;
-                opacity: 0.5;
-                margin-bottom: 16px;
-                color: $text-white;
-            }
-
-            .image-text {
-                color: rgba(255, 255, 255, 0.7);
-                font-size: 1rem;
-                font-weight: 500;
-            }
-        }
-    }
+   
 }
 
 // Animations
@@ -1436,7 +1410,6 @@ $border-radius-xl: 20px;
     .recipes-section,
     .features-section,
     .cta-section {
-        padding: 60px 0;
     }
 
     .cta-card {

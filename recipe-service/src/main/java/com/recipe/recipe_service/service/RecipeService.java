@@ -90,9 +90,9 @@ public class RecipeService {
                 .collect(Collectors.toList());
     }
 
-    public RecipeResponseDTO getRecipeById(Long id, String userId) {
+    public RecipeResponseDTO getRecipeById(Long id) {
         Recipe recipe = recipeRepository.findById(id).orElse(null);
-        if (recipe != null && (recipe.getVisibility() == Visibility.PUBLIC || recipe.getUserId().equals(userId))) {
+        if (recipe != null && (recipe.getVisibility() == Visibility.PUBLIC) ){
             return recipeMapper.toResponseDTO(recipe);
         }
         return null;

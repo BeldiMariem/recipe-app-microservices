@@ -1,5 +1,25 @@
 package com.recipe.recipe_service.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.recipe.recipe_service.dto.CreateRecipeRequestDTO;
 import com.recipe.recipe_service.dto.PantryItem;
 import com.recipe.recipe_service.dto.RecipeResponseDTO;
@@ -8,19 +28,6 @@ import com.recipe.recipe_service.entity.Recipe;
 import com.recipe.recipe_service.entity.Visibility;
 import com.recipe.recipe_service.mapper.RecipeMapper;
 import com.recipe.recipe_service.repository.RecipeRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceTest {
@@ -144,7 +151,7 @@ class RecipeServiceTest {
         when(recipeRepository.findById(1L)).thenReturn(Optional.of(testRecipe));
         when(recipeMapper.toResponseDTO(testRecipe)).thenReturn(testRecipeResponse);
 
-        RecipeResponseDTO result = recipeService.getRecipeById(1L, USER_ID);
+        RecipeResponseDTO result = recipeService.getRecipeById(1L);
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
@@ -159,7 +166,7 @@ class RecipeServiceTest {
         when(recipeRepository.findById(1L)).thenReturn(Optional.of(testRecipe));
         when(recipeMapper.toResponseDTO(testRecipe)).thenReturn(testRecipeResponse);
 
-        RecipeResponseDTO result = recipeService.getRecipeById(1L, USER_ID);
+        RecipeResponseDTO result = recipeService.getRecipeById(1L);
 
         assertNotNull(result);
         assertEquals(OTHER_USER_ID, result.getUserId());
@@ -170,7 +177,7 @@ class RecipeServiceTest {
         Recipe testRecipe = createTestRecipe(OTHER_USER_ID, Visibility.PRIVATE);
         when(recipeRepository.findById(1L)).thenReturn(Optional.of(testRecipe));
 
-        RecipeResponseDTO result = recipeService.getRecipeById(1L, USER_ID);
+        RecipeResponseDTO result = recipeService.getRecipeById(1L);
 
         assertNull(result);
     }
@@ -179,7 +186,7 @@ class RecipeServiceTest {
     void getRecipeById_RecipeNotFound_ReturnsNull() {
         when(recipeRepository.findById(1L)).thenReturn(Optional.empty());
 
-        RecipeResponseDTO result = recipeService.getRecipeById(1L, USER_ID);
+        RecipeResponseDTO result = recipeService.getRecipeById(1L);
 
         assertNull(result);
     }

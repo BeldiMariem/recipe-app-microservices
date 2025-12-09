@@ -1,0 +1,325 @@
+<div class="recipe-details-page" *ngIf="recipe">
+  <!-- Back Button -->
+  <div class="container">
+    <a routerLink="/" class="back-button">
+      <i class="bi bi-arrow-left"></i>
+      <span>Back to Recipes</span>
+    </a>
+  </div>
+
+  <!-- Recipe Hero Section -->
+  <div class="recipe-hero">
+    <div class="container">
+      <div class="recipe-hero-content">
+        <!-- Recipe Image -->
+        <div class="recipe-hero-image">
+          <div class="image-wrapper">
+            <img *ngIf="recipe.imageUrl" 
+                 [src]="recipe.imageUrl" 
+                 [alt]="recipe.title" 
+                 class="recipe-img">
+            <div *ngIf="!recipe.imageUrl" class="recipe-img-placeholder">
+              <i class="bi bi-image"></i>
+              <span>No Image</span>
+            </div>
+            <div class="recipe-badge" [ngClass]="getDifficultyClass(recipe.difficulty)">
+              {{ getDifficultyText(recipe.difficulty) }}
+            </div>
+            <div class="recipe-visibility" [ngClass]="recipe.visibility.toLowerCase()">
+              {{ recipe.visibility }}
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Recipe Info -->
+        <div class="recipe-hero-info">
+          <div class="recipe-header">
+            <div class="recipe-category">{{ getCategoryFromDifficulty() }}</div>
+            <h1 class="recipe-title">{{ recipe.title }}</h1>
+            <p class="recipe-description">{{ recipe.description }}</p>
+            
+            <!-- Rating Stars -->
+            <div class="recipe-rating">
+              <div class="stars">
+                <span *ngFor="let star of getRatingStars()" class="star filled">
+                  <i class="bi bi-star-fill"></i>
+                </span>
+                <span *ngFor="let star of getEmptyStars()" class="star">
+                  <i class="bi bi-star"></i>
+                </span>
+                <span class="rating-text">
+                  {{ recipe.rating?.toFixed(1) || '4.5' }} ({{ recipe.ratingCount || 0 }} reviews)
+                </span>
+              </div>
+            </div>
+            
+            <div class="recipe-author">
+              <div class="author-avatar">
+                {{ recipe.userId?.charAt(0) || 'C' }}
+              </div>
+              <div class="author-info">
+                <div class="author-name">By {{ recipe.userId || 'Community' }}</div>
+                <div class="recipe-date">
+                  <i class="bi bi-calendar"></i>
+                  {{ getFormattedDate() }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="recipe-meta-grid">
+            <div class="meta-item">
+              <div class="meta-icon">
+                <i class="bi bi-clock"></i>
+              </div>
+              <div class="meta-content">
+                <div class="meta-value">{{ totalTime }}</div>
+                <div class="meta-label">Prep Time (min)</div>
+              </div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-icon">
+                <i class="bi bi-people"></i>
+              </div>
+              <div class="meta-content">
+                <div class="meta-value">{{ recipe.servings }}</div>
+                <div class="meta-label">Servings</div>
+              </div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-icon">
+                <i class="bi bi-list-check"></i>
+              </div>
+              <div class="meta-content">
+                <div class="meta-value">{{ recipe.ingredients?.length || 0 }}</div>
+                <div class="meta-label">Ingredients</div>
+              </div>
+            </div>
+
+            <div class="meta-item">
+              <div class="meta-icon">
+                <i class="bi bi-list-ol"></i>
+              </div>
+              <div class="meta-content">
+                <div class="meta-value">{{ recipe.instructions?.length || 0 }}</div>
+                <div class="meta-label">Steps</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="recipe-actions">
+
+            <button class="btn btn-outline" (click)="printRecipe()">
+              <i class="bi bi-printer"></i>
+              Print Recipe
+            </button>
+            <button class="btn btn-outline" (click)="shareRecipe()">
+              <i class="bi bi-share"></i>
+              Share
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recipe Content -->
+  <div class="recipe-content">
+    <div class="container">
+      <div class="recipe-grid">
+        <!-- Ingredients Column -->
+        <div class="recipe-column ingredients-column">
+          <div class="section-header">
+            <h2><i class="bi bi-list-check"></i> Ingredients</h2>
+            <p class="section-subtitle">For {{ recipe.servings }} servings</p>
+            <button class="btn-clear-all" (click)="clearAllIngredients()">
+              <i class="bi bi-check2-all"></i>
+              Clear All
+            </button>
+          </div>
+
+          <div class="ingredients-list">
+            <div *ngFor="let ingredient of getFormattedIngredients(); let i = index" 
+                 class="ingredient-item" 
+                 [class.checked]="ingredient.checked"
+                 (click)="toggleIngredient(i)">
+              <label class="ingredient-checkbox">
+                <input type="checkbox" [checked]="ingredient.checked" (change)="toggleIngredient(i)">
+                <span class="checkmark"></span>
+              </label>
+              <div class="ingredient-details">
+                <div class="ingredient-quantity">
+                  {{ ingredient.quantity }} {{ ingredient.unit }}
+                </div>
+                <div class="ingredient-name">{{ ingredient.name }}</div>
+              </div>
+            </div>
+            
+            <div *ngIf="!recipe.ingredients || recipe.ingredients.length === 0" class="empty-ingredients">
+              <i class="bi bi-info-circle"></i>
+              <p>No ingredients listed for this recipe.</p>
+            </div>
+          </div>
+
+          <div class="nutrition-facts">
+            <h3><i class="bi bi-graph-up"></i> Nutrition Facts</h3>
+            <p class="nutrition-disclaimer">* Estimated values per serving</p>
+            <div class="nutrition-grid">
+              <div class="nutrition-item">
+                <div class="nutrition-value">{{ calculateNutrition().calories }}</div>
+                <div class="nutrition-label">Calories</div>
+              </div>
+              <div class="nutrition-item">
+                <div class="nutrition-value">{{ calculateNutrition().protein }}g</div>
+                <div class="nutrition-label">Protein</div>
+              </div>
+              <div class="nutrition-item">
+                <div class="nutrition-value">{{ calculateNutrition().carbs }}g</div>
+                <div class="nutrition-label">Carbs</div>
+              </div>
+              <div class="nutrition-item">
+                <div class="nutrition-value">{{ calculateNutrition().fat }}g</div>
+                <div class="nutrition-label">Fat</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instructions Column -->
+        <div class="recipe-column instructions-column">
+          <div class="section-header">
+            <h2><i class="bi bi-list-ol"></i> Instructions</h2>
+            <p class="section-subtitle">Follow these steps to prepare the recipe</p>
+          </div>
+
+          <div class="instructions-list">
+            <div *ngFor="let instruction of getFormattedInstructions()" 
+                 class="instruction-item">
+              <div class="instruction-step">
+                <div class="step-number">{{ instruction.stepNumber }}</div>
+                <div class="step-content">
+                  <p class="step-description">{{ instruction.description }}</p>
+                  <div *ngIf="instruction.stepNumber === 1" class="step-time">
+                    <i class="bi bi-clock"></i>
+                    Prep time: {{ recipe.preparationTime }} minutes
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div *ngIf="!recipe.instructions || recipe.instructions.length === 0" 
+                 class="empty-instructions">
+              <i class="bi bi-info-circle"></i>
+              <p>No instructions provided for this recipe.</p>
+            </div>
+          </div>
+
+          <!-- Cooking Tips -->
+          <div class="recipe-tips">
+            <h3><i class="bi bi-lightbulb"></i> Cooking Tips</h3>
+            <div class="tips-content">
+              <p *ngIf="recipe.difficulty === 'EASY'">
+                • This is an easy recipe perfect for beginners. Take your time and follow each step carefully.
+              </p>
+              <p *ngIf="recipe.difficulty === 'MEDIUM'">
+                • This recipe requires some cooking experience. Read through all instructions before starting.
+              </p>
+              <p *ngIf="recipe.difficulty === 'HARD'">
+                • This is an advanced recipe. Make sure you have all ingredients prepared (mise en place) before starting.
+              </p>
+              <p>• Adjust seasoning according to your taste preferences.</p>
+              <p>• Use fresh ingredients for the best results.</p>
+              <p *ngIf="recipe.servings > 4">
+                • This recipe makes {{ recipe.servings }} servings. You can halve the ingredients for a smaller portion.
+              </p>
+            </div>
+          </div>
+
+          <!-- Difficulty Guide -->
+          <div class="difficulty-guide">
+            <h3><i class="bi bi-speedometer2"></i> Difficulty Guide</h3>
+            <div class="difficulty-content">
+              <div class="difficulty-level" [ngClass]="getDifficultyClass(recipe.difficulty)">
+                <span class="level-name">{{ getDifficultyText(recipe.difficulty) }}</span>
+                <span class="level-desc">
+                  <span *ngIf="recipe.difficulty === 'EASY'">Perfect for beginners</span>
+                  <span *ngIf="recipe.difficulty === 'MEDIUM'">Some cooking experience needed</span>
+                  <span *ngIf="recipe.difficulty === 'HARD'">For experienced cooks</span>
+                </span>
+              </div>
+              <div class="difficulty-stats">
+                <div class="stat">
+                  <i class="bi bi-clock"></i>
+                  <span>Prep Time: {{ recipe.preparationTime }} min</span>
+                </div>
+                <div class="stat">
+                  <i class="bi bi-list-check"></i>
+                  <span>Ingredients: {{ recipe.ingredients?.length || 0 }}</span>
+                </div>
+                <div class="stat">
+                  <i class="bi bi-list-ol"></i>
+                  <span>Steps: {{ recipe.instructions?.length || 0 }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Recipes -->
+  <div class="related-recipes" *ngIf="relatedRecipes.length > 0">
+    <div class="container">
+      <div class="section-header">
+        <h2>You Might Also Like</h2>
+        <p>Discover more recipes from our community</p>
+      </div>
+      
+      <div class="related-grid">
+        <div class="related-card" *ngFor="let relatedRecipe of relatedRecipes" 
+             (click)="viewRecipe(relatedRecipe.id!)">
+          <div class="related-image">
+            <img *ngIf="relatedRecipe.imageUrl" 
+                 [src]="relatedRecipe.imageUrl" 
+                 [alt]="relatedRecipe.title">
+            <div *ngIf="!relatedRecipe.imageUrl" class="related-img-placeholder">
+              <i class="bi bi-egg-fried"></i>
+            </div>
+            <div class="related-badge" [ngClass]="getDifficultyClass(relatedRecipe.difficulty)">
+              {{ getDifficultyText(relatedRecipe.difficulty) }}
+            </div>
+          </div>
+          <div class="related-content">
+            <div class="related-category">{{ getCategoryFromDifficulty() }}</div>
+            <h4>{{ relatedRecipe.title }}</h4>
+            <p class="related-description">{{ relatedRecipe.description | slice:0:80 }}...</p>
+            <div class="related-meta">
+              <span><i class="bi bi-clock"></i> {{ relatedRecipe.preparationTime }} min</span>
+              <span><i class="bi bi-people"></i> {{ relatedRecipe.servings }} servings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Error State -->
+<div *ngIf="error" class="error-state">
+  <div class="container">
+    <div class="error-content">
+      <i class="bi bi-exclamation-triangle"></i>
+      <h2>Recipe Not Found</h2>
+      <p>We couldn't find the recipe you're looking for.</p>
+      <a routerLink="/" class="btn btn-primary">
+        <i class="bi bi-arrow-left"></i>
+        Back to Recipes
+      </a>
+    </div>
+  </div>
+</div>
