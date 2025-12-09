@@ -1,49 +1,49 @@
 <div class="pantry-page">
-<div class="pantry-header shadow-sm">
-    <div class="container">
-        <div class="header-content">
-            
-            <div class="header-info">
-                <h1 class="title">
-                    <i class="bi bi-basket2-fill"></i>
-                    My Pantry
-                </h1>
-                <p class="subtitle">
-                    Track your ingredients, monitor freshness, and stay organized
-                </p>
+    <div class="pantry-header shadow-sm">
+        <div class="container">
+            <div class="header-content">
 
-                <div class="header-stats">
-                    <div class="stat-box">
-                        <i class="bi bi-clock-history"></i>
-                        <span>{{ getExpiringSoonCount() }} expiring soon</span>
-                    </div>
-                    <div class="stat-box">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        <span>{{ getLowStockCount() }} low stock</span>
-                    </div>
-                    <div class="stat-box">
-                        <i class="bi bi-tags"></i>
-                        <span>{{ getCategoryCount() }} categories</span>
+                <div class="header-info">
+                    <h1 class="title">
+                        <i class="bi bi-basket2-fill"></i>
+                        My Pantry
+                    </h1>
+                    <p class="subtitle">
+                        Track your ingredients, monitor freshness, and stay organized
+                    </p>
+
+                    <div class="header-stats">
+                        <div class="stat-box">
+                            <i class="bi bi-clock-history"></i>
+                            <span>{{ getExpiringSoonCount() }} expiring soon</span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span>{{ getLowStockCount() }} low stock</span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="bi bi-tags"></i>
+                            <span>{{ getCategoryCount() }} categories</span>
+                        </div>
                     </div>
                 </div>
+
+                <div class="header-actions">
+                    <button class="btn btn-primary" (click)="openAddItemModal()">
+                        <i class="bi bi-plus-circle"></i>
+                        Add Item
+                    </button>
+
+                    <button class="btn btn-outline-secondary" (click)="exportPantry()">
+                        <i class="bi bi-download"></i>
+                        Export
+                    </button>
+                </div>
+
             </div>
-
-            <div class="header-actions">
-                <button class="btn btn-primary" (click)="openAddItemModal()">
-                    <i class="bi bi-plus-circle"></i>
-                    Add Item
-                </button>
-
-                <button class="btn btn-outline-secondary" (click)="exportPantry()">
-                    <i class="bi bi-download"></i>
-                    Export
-                </button>
-            </div>
-
         </div>
     </div>
-</div>
-<br>
+    <br>
 
     <div class="container">
         <div class="pantry-content">

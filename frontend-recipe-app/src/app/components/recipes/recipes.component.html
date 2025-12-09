@@ -1,0 +1,450 @@
+<div class="recipes-page">
+
+    <div class="pantry-header shadow-sm">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-info">
+                    <h1 class="title">
+                        <i class="bi bi-basket2-fill"></i>
+                        All Recipes
+                    </h1>
+                    <p class="subtitle">
+                        Discover, create, and share your favorite recipes with the community </p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" (click)="openCreateRecipeModal()">
+                        <i class="bi bi-plus-circle"></i>
+                        Create Recipe
+                    </button>
+                    <button class="btn btn-outline-secondary" (click)="showMyRecipes()">
+                        <i class="bi bi-download"></i>
+                        My Recipes
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="recipe-stats" *ngIf="recipes.length > 0">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ totalRecipes }}</h3>
+                        <p>Total Recipes</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon easy">
+                        <i class="bi bi-emoji-smile"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ getDifficultyCount('EASY') }}</h3>
+                        <p>Easy Recipes</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon popular">
+                        <i class="bi bi-fire"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ getPopularRecipesCount() }}</h3>
+                        <p>Popular Recipes</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon categories">
+                        <i class="bi bi-tags"></i>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="recipes-content">
+            <div class="recipes-filters">
+                <div class="filter-group">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="filterRecipes()"
+                            placeholder="Search recipes..." class="search-input">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+
+
+                    <div class="filter-dropdown">
+                        <label>Difficulty:</label>
+                        <select [(ngModel)]="selectedDifficulty" (change)="filterRecipes()">
+                            <option value="all">All Levels</option>
+                            <option value="EASY">Easy</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="HARD">Hard</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-dropdown">
+                        <label>Sort by:</label>
+                        <select [(ngModel)]="sortBy" (change)="filterRecipes()">
+                            <option value="newest">Newest First</option>
+                            <option value="popular">Most Popular</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="time">Quickest</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-toggle">
+                <button class="view-btn" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')">
+                    <i class="bi bi-grid"></i>
+                    Grid
+                </button>
+                <button class="view-btn" [class.active]="viewMode === 'list'" (click)="setViewMode('list')">
+                    <i class="bi bi-list"></i>
+                    List
+                </button>
+            </div>
+
+
+
+            <div *ngIf="filteredRecipes.length === 0" class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-egg-fried"></i>
+                </div>
+                <h3>No recipes found</h3>
+                <p *ngIf="searchQuery  || selectedDifficulty !== 'all'">
+                    Try adjusting your filters
+                </p>
+                <p *ngIf="!searchQuery && selectedDifficulty === 'all'">
+                    Be the first to create a recipe!
+                </p>
+                <button class="btn btn-primary" (click)="openCreateRecipeModal()" *ngIf="isLoggedIn">
+                    <i class="bi bi-plus-circle"></i>
+                    Create Recipe
+                </button>
+            </div>
+
+            <div *ngIf="filteredRecipes.length > 0 && viewMode === 'grid'" class="recipes-grid">
+                <div *ngFor="let recipe of filteredRecipes" class="recipe-card" (click)="viewRecipeDetails(recipe.id!)">
+                    <div class="recipe-image-container">
+                        <div class="recipe-image-wrapper">
+                            <img *ngIf="recipe.imageUrl" [src]="recipe.imageUrl" [alt]="recipe.title" class="recipe-img"
+                                (error)="handleImageError($event, recipe.id!)">
+                            <div *ngIf="!recipe.imageUrl" class="recipe-img-placeholder">
+                                <i class="bi bi-egg-fried"></i>
+                            </div>
+                            <div class="recipe-overlay">
+                                <button class="save-button" (click)="saveRecipe($event, recipe)">
+                                    <i class="bi bi-bookmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="recipe-badge" [ngClass]="getDifficultyClass(recipe.difficulty)">
+                            {{ getDifficultyText(recipe.difficulty) }}
+                        </div>
+                        <div class="recipe-visibility" [ngClass]="recipe.visibility.toLowerCase()">
+                            <i class="bi" [class]="getVisibilityIcon(recipe.visibility)"></i>
+                        </div>
+                    </div>
+
+                    <div class="recipe-content">
+
+
+                        <h3 class="recipe-title">{{ recipe.title }}</h3>
+                        <p class="recipe-description">
+                            {{ recipe.description | slice:0:100 }}
+                            {{ recipe.description && recipe.description.length > 100 ? '...' : '' }}
+                        </p>
+
+                        <div class="recipe-meta">
+                            <div class="meta-item">
+                                <i class="bi bi-clock"></i>
+                                {{ recipe.preparationTime }} min
+                            </div>
+                            <div class="meta-item">
+                                <i class="bi bi-people"></i>
+                                {{ recipe.servings }} servings
+                            </div>
+                            <div class="meta-item">
+                                <i class="bi bi-star-fill"></i>
+                                {{ recipe.rating?.toFixed(1) || '4.5' }}
+                            </div>
+                        </div>
+
+                        <div class="recipe-footer">
+                            <div class="recipe-author">
+                                <div class="author-avatar">
+                                    {{ (recipe.userId)?.charAt(0) || 'C' }}
+                                </div>
+                                <span>By {{ recipe.userId || recipe.userId || 'Community' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="filteredRecipes.length > 0 && viewMode === 'list'" class="recipes-list">
+                <div *ngFor="let recipe of filteredRecipes" class="recipe-list-item"
+                    (click)="viewRecipeDetails(recipe.id!)">
+                    <div class="list-image">
+                        <img *ngIf="recipe.imageUrl" [src]="recipe.imageUrl" [alt]="recipe.title" class="recipe-img">
+                        <div *ngIf="!recipe.imageUrl" class="recipe-img-placeholder">
+                            <i class="bi bi-egg-fried"></i>
+                        </div>
+                    </div>
+
+                    <div class="list-content">
+                        <div class="list-header">
+                            <div class="list-badge" [ngClass]="getDifficultyClass(recipe.difficulty)">
+                                {{ getDifficultyText(recipe.difficulty) }}
+                            </div>
+                        </div>
+
+                        <h3 class="list-title">{{ recipe.title }}</h3>
+                        <p class="list-description">{{ recipe.description | slice:0:150 }}...</p>
+
+                        <div class="list-meta">
+                            <div class="meta-item">
+                                <i class="bi bi-clock"></i>
+                                {{ recipe.preparationTime }} min
+                            </div>
+                            <div class="meta-item">
+                                <i class="bi bi-people"></i>
+                                {{ recipe.servings }} servings
+                            </div>
+                            <div class="meta-item">
+                                <i class="bi bi-star-fill"></i>
+                                {{ recipe.rating?.toFixed(1) || '4.5' }} ({{ recipe.ratingCount || 0 }})
+                            </div>
+                            <div class="meta-item">
+                                <i class="bi bi-list-check"></i>
+                                {{ recipe.ingredients?.length || 0 }} ingredients
+                            </div>
+                        </div>
+
+                        <div class="list-footer">
+                            <div class="author-info">
+                                <div class="author-avatar">
+                                    {{ (recipe.userId || recipe.userId)?.charAt(0) || 'C' }}
+                                </div>
+                                <span>By {{ recipe.userId || recipe.userId || 'Community' }}</span>
+                            </div>
+
+                            <div class="list-actions">
+                                <button class="action-btn save-btn" (click)="saveRecipe($event, recipe)">
+                                    <i class="bi bi-bookmark"></i>
+                                    Save
+                                </button>
+                                <button class="action-btn view-btn" (click)="viewRecipeDetails(recipe.id!)">
+                                    View Recipe
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="filteredRecipes.length > 0" class="pagination">
+                <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+                    <i class="bi bi-chevron-left"></i>
+                    Previous
+                </button>
+
+                <div class="page-numbers">
+                    <button *ngFor="let page of getPageNumbers()" class="page-number"
+                        [class.active]="page === currentPage" (click)="goToPage(page)">
+                        {{ page }}
+                    </button>
+                </div>
+
+                <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+                    Next
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div *ngIf="showCreateModal" class="modal-overlay" (click)="closeCreateModal()">
+        <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Create New Recipe</h3>
+                <button class="modal-close" (click)="closeCreateModal()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form [formGroup]="recipeForm" (ngSubmit)="createRecipe()">
+                    <div class="form-section">
+                        <h4>Recipe Details</h4>
+                        <div class="form-group">
+                            <label for="title">Recipe Title *</label>
+                            <input type="text" id="title" formControlName="title"
+                                placeholder="e.g., Classic Spaghetti Carbonara" class="form-control">
+                            <div *ngIf="recipeForm.get('title')?.invalid && recipeForm.get('title')?.touched"
+                                class="error-message">
+                                Recipe title is required
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description *</label>
+                            <textarea id="description" formControlName="description" rows="3"
+                                placeholder="Describe your recipe..." class="form-control"></textarea>
+                            <div *ngIf="recipeForm.get('description')?.invalid && recipeForm.get('description')?.touched"
+                                class="error-message">
+                                Description is required
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="preparationTime">Preparation Time (minutes) *</label>
+                                <input type="number" id="preparationTime" formControlName="preparationTime" min="1"
+                                    class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="servings">Servings *</label>
+                                <input type="number" id="servings" formControlName="servings" min="1"
+                                    class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="difficulty">Difficulty *</label>
+                                <select id="difficulty" formControlName="difficulty" class="form-control">
+                                    <option value="EASY">Easy</option>
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="HARD">Hard</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+
+
+                            <div class="form-group">
+                                <label for="visibility">Visibility *</label>
+                                <select id="visibility" formControlName="visibility" class="form-control">
+                                    <option value="PUBLIC">Public</option>
+                                    <option value="PRIVATE">Private</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imageUrl">Image URL</label>
+                            <input type="url" id="imageUrl" formControlName="imageUrl"
+                                placeholder="https://example.com/recipe-image.jpg" class="form-control">
+                            <small class="form-hint">Optional: Provide a URL for your recipe image</small>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Ingredients</h4>
+                        <div formArrayName="ingredients">
+                            <div *ngFor="let ingredient of ingredientsArray.controls; let i = index"
+                                class="ingredient-row">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <input type="text" [formControlName]="i" placeholder="Ingredient name"
+                                            class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="number" placeholder="Quantity" class="form-control" min="0.1"
+                                            step="0.1">
+                                    </div>
+                                    <div class="form-group">
+                                        <select class="form-control">
+                                            <option value="">Unit</option>
+                                            <option value="g">grams (g)</option>
+                                            <option value="kg">kilograms (kg)</option>
+                                            <option value="ml">milliliters (ml)</option>
+                                            <option value="L">liters (L)</option>
+                                            <option value="pcs">pieces</option>
+                                            <option value="cups">cups</option>
+                                            <option value="tbsp">tablespoons</option>
+                                            <option value="tsp">teaspoons</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-outline btn-sm" (click)="removeIngredient(i)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline" (click)="addIngredient()">
+                            <i class="bi bi-plus"></i>
+                            Add Ingredient
+                        </button>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Instructions</h4>
+                        <div formArrayName="instructions">
+                            <div *ngFor="let instruction of instructionsArray.controls; let i = index"
+                                class="instruction-row">
+                                <div class="form-group">
+                                    <label>Step {{ i + 1 }}</label>
+                                    <textarea [formControlName]="i" rows="2" placeholder="Describe this step..."
+                                        class="form-control"></textarea>
+                                    <button type="button" class="btn btn-outline btn-sm remove-btn"
+                                        (click)="removeInstruction(i)">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline" (click)="addInstruction()">
+                            <i class="bi bi-plus"></i>
+                            Add Step
+                        </button>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Tags (Optional)</h4>
+                        <div class="tags-input">
+                            <div class="tags-container">
+                                <span *ngFor="let tag of tags; let i = index" class="tag">
+                                    {{ tag }}
+                                    <button type="button" class="tag-remove" (click)="removeTag(i)">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </span>
+                            </div>
+                            <input type="text" [(ngModel)]="tagInput" [ngModelOptions]="{standalone: true}"
+                                placeholder="Add tags (press Enter)" (keyup.enter)="addTag()" class="form-control">
+                            <small class="form-hint">Add tags to help others find your recipe (e.g., vegetarian, quick,
+                                healthy)</small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" (click)="closeCreateModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" [disabled]="!recipeForm.valid || isCreating">
+                            <span *ngIf="!isCreating">Create Recipe</span>
+                            <span *ngIf="isCreating">Creating...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

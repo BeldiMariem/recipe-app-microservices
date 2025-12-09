@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 import { RecipeDetailsComponent } from './components/recipe-details/recipe-details.component';
 import { PantryComponent } from './components/pantry/pantry.component';
+import { RecipesComponent } from './components/recipes/recipes.component';
 
 export const routes: Routes = [
   { 
@@ -18,6 +19,8 @@ export const routes: Routes = [
   },
   { path: 'recipes/:id', component: RecipeDetailsComponent },
   { path: 'pantry', component: PantryComponent },
+  { path: 'recipes', component: RecipesComponent },
+
   { 
     path: 'dashboard', 
     loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
