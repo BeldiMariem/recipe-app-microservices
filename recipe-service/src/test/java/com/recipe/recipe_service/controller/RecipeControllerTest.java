@@ -1,50 +1,53 @@
 package com.recipe.recipe_service.controller;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import com.recipe.recipe_service.dto.CreateRecipeRequestDTO;
 import com.recipe.recipe_service.dto.RecipeResponseDTO;
 import com.recipe.recipe_service.dto.UpdateRecipeRequestDTO;
 import com.recipe.recipe_service.entity.Visibility;
 import com.recipe.recipe_service.service.RecipeService;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import static org.hamcrest.Matchers.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
 class RecipeControllerTest {
+
     private MockMvc mockMvc;
-    
+
     @Mock
     private RecipeService recipeService;
-    
+
     @InjectMocks
     private RecipeController recipeController;
-    
+
     private ObjectMapper objectMapper = new ObjectMapper();
-    
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(recipeController).build();
@@ -95,7 +98,7 @@ class RecipeControllerTest {
         RecipeResponseDTO response1 = createRecipeResponse(1L, "Pasta", USER_ID, Visibility.PUBLIC);
         RecipeResponseDTO response2 = createRecipeResponse(2L, "Salad", USER_ID, Visibility.PUBLIC);
         List<RecipeResponseDTO> responses = Arrays.asList(response1, response2);
-        
+
         when(recipeService.getRecipeSuggestions(USER_ID)).thenReturn(responses);
 
         mockMvc.perform(get("/api/recipes/suggestions")
@@ -128,7 +131,7 @@ class RecipeControllerTest {
     void getUseItUpRecipes_Success() throws Exception {
         RecipeResponseDTO response = createRecipeResponse(1L, "Use It Up Recipe", USER_ID, Visibility.PUBLIC);
         List<RecipeResponseDTO> responses = List.of(response);
-        
+
         when(recipeService.getUseItUpRecipes(USER_ID)).thenReturn(responses);
 
         mockMvc.perform(get("/api/recipes/use-it-up")
@@ -149,7 +152,7 @@ class RecipeControllerTest {
         RecipeResponseDTO response1 = createRecipeResponse(1L, "Public Recipe", "user1", Visibility.PUBLIC);
         RecipeResponseDTO response2 = createRecipeResponse(2L, "My Private Recipe", USER_ID, Visibility.PRIVATE);
         List<RecipeResponseDTO> responses = Arrays.asList(response1, response2);
-        
+
         when(recipeService.getAllRecipes(USER_ID)).thenReturn(responses);
 
         mockMvc.perform(get("/api/recipes/all")
@@ -171,7 +174,7 @@ class RecipeControllerTest {
         RecipeResponseDTO response1 = createRecipeResponse(1L, "Public Recipe 1", "user1", Visibility.PUBLIC);
         RecipeResponseDTO response2 = createRecipeResponse(2L, "Public Recipe 2", "user2", Visibility.PUBLIC);
         List<RecipeResponseDTO> responses = Arrays.asList(response1, response2);
-        
+
         when(recipeService.getPublicRecipes()).thenReturn(responses);
 
         mockMvc.perform(get("/api/recipes/public"))
@@ -195,7 +198,7 @@ class RecipeControllerTest {
         RecipeResponseDTO response1 = createRecipeResponse(1L, "My Recipe 1", USER_ID, Visibility.PRIVATE);
         RecipeResponseDTO response2 = createRecipeResponse(2L, "My Recipe 2", USER_ID, Visibility.PUBLIC);
         List<RecipeResponseDTO> responses = Arrays.asList(response1, response2);
-        
+
         when(recipeService.getMyRecipes(USER_ID)).thenReturn(responses);
 
         mockMvc.perform(get("/api/recipes/my-recipes")
@@ -223,40 +226,10 @@ class RecipeControllerTest {
     }
 
     @Test
-    void getRecipeById_Success() throws Exception {
-        RecipeResponseDTO response = createRecipeResponse(1L, "Test Recipe", USER_ID, Visibility.PUBLIC);
-        when(recipeService.getRecipeById(1L, USER_ID)).thenReturn(response);
-
-        mockMvc.perform(get("/api/recipes/getRecipeById/1")
-                .header(USER_HEADER, USER_ID))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.title", is("Test Recipe")))
-                .andExpect(jsonPath("$.userId", is(USER_ID)))
-                .andExpect(jsonPath("$.visibility", is("PUBLIC")));
-    }
-
-    @Test
     void getRecipeById_NotFound() throws Exception {
-        when(recipeService.getRecipeById(1L, USER_ID)).thenReturn(null);
+        when(recipeService.getRecipeById(1L)).thenReturn(null);
 
-        mockMvc.perform(get("/api/recipes/getRecipeById/1")
-                .header(USER_HEADER, USER_ID))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void getRecipeById_MissingUserIdHeader_ReturnsBadRequest() throws Exception {
         mockMvc.perform(get("/api/recipes/getRecipeById/1"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getRecipeById_InvalidId_ReturnsNotFound() throws Exception {
-        when(recipeService.getRecipeById(999L, USER_ID)).thenReturn(null);
-
-        mockMvc.perform(get("/api/recipes/getRecipeById/999")
-                .header(USER_HEADER, USER_ID))
                 .andExpect(status().isNotFound());
     }
 
@@ -264,7 +237,7 @@ class RecipeControllerTest {
     void createRecipe_Success() throws Exception {
         CreateRecipeRequestDTO request = createCreateRecipeRequest();
         RecipeResponseDTO response = createRecipeResponse(1L, "Test Recipe", USER_ID, Visibility.PUBLIC);
-        
+
         when(recipeService.createRecipe(any(CreateRecipeRequestDTO.class), eq(USER_ID))).thenReturn(response);
 
         mockMvc.perform(post("/api/recipes/createRecipe")
@@ -287,8 +260,6 @@ class RecipeControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-
-
     @Test
     void createRecipe_InvalidJSON_ReturnsBadRequest() throws Exception {
         String invalidJson = "{ invalid json }";
@@ -304,7 +275,7 @@ class RecipeControllerTest {
     void updateRecipe_Success() throws Exception {
         UpdateRecipeRequestDTO request = createUpdateRecipeRequest();
         RecipeResponseDTO response = createRecipeResponse(1L, "Updated Recipe", USER_ID, Visibility.PRIVATE);
-        
+
         when(recipeService.updateRecipe(eq(1L), any(UpdateRecipeRequestDTO.class), eq(USER_ID))).thenReturn(response);
 
         mockMvc.perform(put("/api/recipes/updateRecipe/1")
@@ -319,7 +290,7 @@ class RecipeControllerTest {
     @Test
     void updateRecipe_NotFound() throws Exception {
         UpdateRecipeRequestDTO request = createUpdateRecipeRequest();
-        
+
         when(recipeService.updateRecipe(eq(1L), any(UpdateRecipeRequestDTO.class), eq(USER_ID)))
                 .thenThrow(new RuntimeException("Recipe not found"));
 
@@ -343,7 +314,7 @@ class RecipeControllerTest {
     @Test
     void updateRecipe_InvalidId_ReturnsNotFound() throws Exception {
         UpdateRecipeRequestDTO request = createUpdateRecipeRequest();
-        
+
         when(recipeService.updateRecipe(eq(999L), any(UpdateRecipeRequestDTO.class), eq(USER_ID)))
                 .thenThrow(new RuntimeException("Recipe not found"));
 
@@ -398,10 +369,4 @@ class RecipeControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void wrongHttpMethod_ReturnsMethodNotAllowed() throws Exception {
-        mockMvc.perform(post("/api/recipes/getRecipeById/1")
-                .header(USER_HEADER, USER_ID))
-                .andExpect(status().isMethodNotAllowed());
-    }
 }

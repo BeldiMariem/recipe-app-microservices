@@ -57,13 +57,14 @@ public class RecipeController {
     }
     
     @GetMapping("/getRecipeById/{id}")
-    public ResponseEntity<RecipeResponseDTO> getRecipeById(@PathVariable Long id, @RequestHeader("User-Id") String userId) {
-        RecipeResponseDTO recipe = recipeService.getRecipeById(id, userId);
+    public ResponseEntity<RecipeResponseDTO> getRecipeById(@PathVariable Long id) {
+        RecipeResponseDTO recipe = recipeService.getRecipeById(id);
         if (recipe != null) {
             return ResponseEntity.ok(recipe);
         }
         return ResponseEntity.notFound().build();
     }
+    
     
     @PostMapping("/createRecipe")
     public ResponseEntity<RecipeResponseDTO> createRecipe(@RequestBody CreateRecipeRequestDTO request, @RequestHeader("User-Id") String userId) {

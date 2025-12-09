@@ -36,6 +36,7 @@ public class GlobalFilterConfig implements GlobalFilter, Ordered {
     private boolean requiresAuthentication(ServerHttpRequest request) {
         String path = request.getURI().getPath();
         return !path.startsWith("/api/recipes/public")&&
+               !path.startsWith("/api/recipes/getRecipeById/{id}")&&
                !path.startsWith("/auth/login") && 
                !path.startsWith("/auth/register") &&
                !path.contains("/actuator/health");
