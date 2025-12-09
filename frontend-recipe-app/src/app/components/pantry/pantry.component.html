@@ -1,0 +1,252 @@
+<div class="pantry-page">
+<div class="pantry-header shadow-sm">
+    <div class="container">
+        <div class="header-content">
+            
+            <div class="header-info">
+                <h1 class="title">
+                    <i class="bi bi-basket2-fill"></i>
+                    My Pantry
+                </h1>
+                <p class="subtitle">
+                    Track your ingredients, monitor freshness, and stay organized
+                </p>
+
+                <div class="header-stats">
+                    <div class="stat-box">
+                        <i class="bi bi-clock-history"></i>
+                        <span>{{ getExpiringSoonCount() }} expiring soon</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>{{ getLowStockCount() }} low stock</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="bi bi-tags"></i>
+                        <span>{{ getCategoryCount() }} categories</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn btn-primary" (click)="openAddItemModal()">
+                    <i class="bi bi-plus-circle"></i>
+                    Add Item
+                </button>
+
+                <button class="btn btn-outline-secondary" (click)="exportPantry()">
+                    <i class="bi bi-download"></i>
+                    Export
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<br>
+
+    <div class="container">
+        <div class="pantry-content">
+            <div class="pantry-filters">
+                <div class="filter-group">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="filterItems()"
+                            placeholder="Search pantry items..." class="search-input">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-dropdown">
+                        <label>Category:</label>
+                        <select [(ngModel)]="selectedCategory" (change)="filterItems()">
+                            <option value="all">All Categories</option>
+                            <option *ngFor="let category of categories" [value]="category">
+                                {{ category }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="filter-dropdown">
+                        <label>Sort by:</label>
+                        <select [(ngModel)]="sortBy" (change)="filterItems()">
+                            <option value="name">Name A-Z</option>
+                            <option value="expiry">Expiry Date</option>
+                            <option value="added">Recently Added</option>
+                            <option value="quantity">Quantity</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div *ngIf="filteredItems.length === 0" class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-basket"></i>
+                </div>
+                <h3>Your pantry is empty</h3>
+                <p>Add your first item to start tracking ingredients</p>
+                <button class="btn btn-primary" (click)="openAddItemModal()">
+                    <i class="bi bi-plus-circle"></i>
+                    Add First Item
+                </button>
+            </div>
+
+            <div *ngIf="filteredItems.length > 0" class="pantry-grid">
+                <div *ngFor="let item of filteredItems" class="pantry-card">
+                    <div class="card-header">
+                        <div class="item-category">
+                            <span>{{ getItemCategory(item.name) }}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="action-btn" (click)="editItem(item)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="action-btn delete" (click)="deleteItem(item)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <h4 class="item-name">{{ item.name }}</h4>
+                        <div class="item-quantity">
+                            <i class="bi bi-box"></i>
+                            <span>{{ item.quantity }} {{ item.unit }}</span>
+                        </div>
+                        <div class="item-expiry" [ngClass]="getExpiryClass(item.expiryDate)">
+                            <i class="bi bi-calendar"></i>
+                            <span>Expires: {{ formatDate(item.expiryDate) }}</span>
+                            <span *ngIf="isExpiringSoon(item.expiryDate)" class="expiry-badge">
+                                Soon!
+                            </span>
+                        </div>
+                        <div class="item-added">
+                            <i class="bi bi-plus-circle"></i>
+                            <span>Added: {{ formatDate(item.addedDate || item.expiryDate) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="stock-indicator">
+                            <div class="indicator-label">
+                                <i class="bi" [ngClass]="getStockIcon(item)"></i>
+                                <span>{{ getStockStatus(item) }}</span>
+                            </div>
+                            <div class="indicator-bar">
+                                <div class="indicator-fill" [style.width.%]="getStockPercentage(item)"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="expiringItems.length > 0" class="expiring-section">
+                <div class="section-header">
+                    <h3>
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Items Expiring Soon
+                    </h3>
+                    <p>Use these ingredients in your next recipe</p>
+                </div>
+
+                <div class="expiring-grid">
+                    <div *ngFor="let item of expiringItems" class="expiring-card">
+                        <div class="expiring-alert">
+                            <i class="bi bi-clock"></i>
+                            <span>Expires in {{ getDaysUntilExpiry(item.expiryDate) }} days</span>
+                        </div>
+                        <h4>{{ item.name }}</h4>
+                        <p>{{ item.quantity }} {{ item.unit }} remaining</p>
+                        <button class="btn btn-sm" (click)="findRecipesWithItem(item)">
+                            <i class="bi bi-search"></i>
+                            Find Recipes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>{{ editingItem ? 'Edit Item' : 'Add New Item' }}</h3>
+                <button class="modal-close" (click)="closeModal()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form [formGroup]="pantryForm" (ngSubmit)="saveItem()">
+                    <div class="form-group">
+                        <label for="name">Item Name *</label>
+                        <input type="text" id="name" formControlName="name"
+                            placeholder="e.g., Olive Oil, Flour, Eggs..." class="form-control">
+                        <div *ngIf="pantryForm.get('name')?.invalid && pantryForm.get('name')?.touched"
+                            class="error-message">
+                            Item name is required
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quantity">Quantity *</label>
+                            <input type="number" id="quantity" formControlName="quantity" min="0.1" step="0.1"
+                                class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="unit">Unit *</label>
+                            <select id="unit" formControlName="unit" class="form-control">
+                                <option value="">Select unit</option>
+                                <option value="g">grams (g)</option>
+                                <option value="kg">kilograms (kg)</option>
+                                <option value="ml">milliliters (ml)</option>
+                                <option value="L">liters (L)</option>
+                                <option value="pcs">pieces</option>
+                                <option value="cups">cups</option>
+                                <option value="tbsp">tablespoons</option>
+                                <option value="tsp">teaspoons</option>
+                                <option value="oz">ounces (oz)</option>
+                                <option value="lb">pounds (lb)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expiryDate">Expiry Date *</label>
+                        <input type="date" id="expiryDate" formControlName="expiryDate" class="form-control">
+                        <small class="form-hint">When does this item expire?</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" formControlName="category" class="form-control">
+                            <option value="">Select category</option>
+                            <option value="Dairy">Dairy</option>
+                            <option value="Meat">Meat</option>
+                            <option value="Vegetables">Vegetables</option>
+                            <option value="Fruits">Fruits</option>
+                            <option value="Grains">Grains</option>
+                            <option value="Spices">Spices</option>
+                            <option value="Oils">Oils & Vinegars</option>
+                            <option value="Canned">Canned Goods</option>
+                            <option value="Baking">Baking Supplies</option>
+                            <option value="Beverages">Beverages</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" (click)="closeModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" [disabled]="!pantryForm.valid">
+                            {{ editingItem ? 'Update Item' : 'Add Item' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

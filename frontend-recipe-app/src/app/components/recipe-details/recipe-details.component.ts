@@ -37,12 +37,12 @@ export class RecipeDetailsComponent implements OnInit {
             next: (recipe) => {
                 this.recipe = recipe;
                 this.loadRelatedRecipes();
-                this.cdr.detectChanges(); // Add this line
+                this.cdr.detectChanges(); 
             },
             error: (error) => {
                 console.error('Error loading recipe:', error);
                 this.error = 'Recipe not found';
-                this.cdr.detectChanges(); // Add this line
+                this.cdr.detectChanges();
             }
         });
     }
@@ -54,11 +54,11 @@ export class RecipeDetailsComponent implements OnInit {
                     .filter(r => r.id !== this.recipe?.id)
                     .sort(() => Math.random() - 0.5)
                     .slice(0, 3);
-                this.cdr.detectChanges(); // Add this line
+                this.cdr.detectChanges(); 
             },
             error: (error) => {
                 console.error('Error loading related recipes:', error);
-                this.cdr.detectChanges(); // Add this line
+                this.cdr.detectChanges(); 
             }
         });
     }
@@ -108,7 +108,6 @@ export class RecipeDetailsComponent implements OnInit {
     }
 
     toggleIngredient(index: number): void {
-        // This will work with the updated HTML template
         const ingredients = this.getFormattedIngredients();
         if (ingredients[index]) {
             ingredients[index].checked = !ingredients[index].checked;
@@ -116,12 +115,10 @@ export class RecipeDetailsComponent implements OnInit {
     }
 
     calculateNutrition(): { calories: number, protein: number, carbs: number, fat: number } {
-        // Mock nutrition calculation based on ingredients
         if (!this.recipe || !this.recipe.ingredients?.length) {
             return { calories: 350, protein: 15, carbs: 45, fat: 12 };
         }
 
-        // Simple mock calculation - in real app, you'd have a nutrition API
         const ingredientCount = this.recipe.ingredients?.length;
         const calories = 200 + (ingredientCount * 50);
         const protein = 10 + (ingredientCount * 2);
@@ -132,7 +129,6 @@ export class RecipeDetailsComponent implements OnInit {
     }
 
     startCooking(): void {
-        // Implement cooking mode
         console.log('Starting cooking mode for:', this.recipe?.title);
         alert(`Starting to cook: ${this.recipe?.title}! Get your ingredients ready.`);
     }
@@ -180,7 +176,6 @@ export class RecipeDetailsComponent implements OnInit {
 
     getFormattedDate(): string {
         if (!this.recipe) return 'Recently';
-        // Mock date - in real app, you'd have createdAt field
         return new Date().toLocaleDateString('en-US', {
             month: 'long',
             day: 'numeric',
@@ -188,10 +183,8 @@ export class RecipeDetailsComponent implements OnInit {
         });
     }
     clearAllIngredients(): void {
-        // Reset all ingredient checkboxes
         const ingredients = this.getFormattedIngredients();
         ingredients.forEach(ing => ing.checked = false);
-        // In a real app, you'd update a state variable
         console.log('Cleared all ingredients');
     }
 }

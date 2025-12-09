@@ -1,5 +1,4 @@
 <div class="recipe-details-page" *ngIf="recipe">
-  <!-- Back Button -->
   <div class="container">
     <a routerLink="/" class="back-button">
       <i class="bi bi-arrow-left"></i>
@@ -7,11 +6,9 @@
     </a>
   </div>
 
-  <!-- Recipe Hero Section -->
   <div class="recipe-hero">
     <div class="container">
       <div class="recipe-hero-content">
-        <!-- Recipe Image -->
         <div class="recipe-hero-image">
           <div class="image-wrapper">
             <img *ngIf="recipe.imageUrl" 
@@ -32,14 +29,12 @@
           </div>
         </div>
 
-        <!-- Recipe Info -->
         <div class="recipe-hero-info">
           <div class="recipe-header">
             <div class="recipe-category">{{ getCategoryFromDifficulty() }}</div>
             <h1 class="recipe-title">{{ recipe.title }}</h1>
             <p class="recipe-description">{{ recipe.description }}</p>
             
-            <!-- Rating Stars -->
             <div class="recipe-rating">
               <div class="stars">
                 <span *ngFor="let star of getRatingStars()" class="star filled">
@@ -126,11 +121,9 @@
     </div>
   </div>
 
-  <!-- Recipe Content -->
   <div class="recipe-content">
     <div class="container">
       <div class="recipe-grid">
-        <!-- Ingredients Column -->
         <div class="recipe-column ingredients-column">
           <div class="section-header">
             <h2><i class="bi bi-list-check"></i> Ingredients</h2>
@@ -188,7 +181,6 @@
           </div>
         </div>
 
-        <!-- Instructions Column -->
         <div class="recipe-column instructions-column">
           <div class="section-header">
             <h2><i class="bi bi-list-ol"></i> Instructions</h2>
@@ -217,7 +209,6 @@
             </div>
           </div>
 
-          <!-- Cooking Tips -->
           <div class="recipe-tips">
             <h3><i class="bi bi-lightbulb"></i> Cooking Tips</h3>
             <div class="tips-content">
@@ -238,7 +229,6 @@
             </div>
           </div>
 
-          <!-- Difficulty Guide -->
           <div class="difficulty-guide">
             <h3><i class="bi bi-speedometer2"></i> Difficulty Guide</h3>
             <div class="difficulty-content">
@@ -271,7 +261,6 @@
     </div>
   </div>
 
-  <!-- Related Recipes -->
   <div class="related-recipes" *ngIf="relatedRecipes.length > 0">
     <div class="container">
       <div class="section-header">
@@ -309,7 +298,6 @@
 </div>
 
 
-<!-- Error State -->
 <div *ngIf="error" class="error-state">
   <div class="container">
     <div class="error-content">
