@@ -12,7 +12,6 @@ $shadow-md: 0 8px 40px rgba(0, 0, 0, 0.12);
 $shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
 $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
 
-// Mixins
 @mixin glass-effect {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -480,7 +479,6 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
   }
 }
 
-// Responsive Design
 @media (max-width: 992px) {
   .navbar {
     .container {
@@ -584,7 +582,6 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
   }
 }
 
-// Animations
 @keyframes slideDown {
   from {
     opacity: 0;
