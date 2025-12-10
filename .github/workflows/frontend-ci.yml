@@ -19,7 +19,7 @@ jobs:
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
+        username: mariem19
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build and Push Docker Image
@@ -27,4 +27,4 @@ jobs:
       with:
         context: frontend-recipe-app
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/frontend-recipe-app:latest
+        tags: mariem19/frontend-recipe-app:latest
