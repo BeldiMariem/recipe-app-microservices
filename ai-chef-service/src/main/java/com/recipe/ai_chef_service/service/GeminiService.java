@@ -46,10 +46,8 @@ public class GeminiService {
     public GeminiService() {
     this.restTemplate = new RestTemplate();
     SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-    factory.setConnectTimeout(5000);    // 5 seconds to connect
-    factory.setReadTimeout(10000);      // 10 seconds for response
-    // For connection pool timeout, you need to use HttpClient (advanced)
-    // But for now, these two are enough
+    factory.setConnectTimeout(5000);    
+    factory.setReadTimeout(10000); 
     restTemplate.setRequestFactory(factory);
     }
 
@@ -67,14 +65,13 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
         return new ArrayList<>();
     }
 
-    int maxRetries = 2;  // Reduced from 3
+    int maxRetries = 2; 
     int retryCount = 0;
     long baseWaitTime = 1000;
     long startTime = System.currentTimeMillis();
-    long maxTotalTime = 8000; // 8 seconds total timeout
+    long maxTotalTime = 8000; 
 
     while (retryCount <= maxRetries) {
-        // Check overall timeout
         if (System.currentTimeMillis() - startTime > maxTotalTime) {
             log.warn("⚠️ Overall timeout reached after {}ms", maxTotalTime);
             break;
@@ -94,7 +91,6 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
                 log.info("🔄 Retry attempt {}/{}", retryCount, maxRetries);
             }
             
-            // Make the API call
             ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
@@ -106,7 +102,6 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
             }
 
         } catch (ResourceAccessException e) {
-            // This catches socket timeouts, connection timeouts
             retryCount++;
             log.warn("⏱️ Network timeout/error, retry {}/{}: {}", retryCount, maxRetries, e.getMessage());
             
@@ -122,7 +117,6 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
             }
             
         } catch (HttpServerErrorException.ServiceUnavailable e) {
-            // 503 handling
             retryCount++;
             log.warn("⚠️ API overloaded (503), retry {}/{}", retryCount, maxRetries);
             
@@ -162,10 +156,10 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
         requestBody.put("contents", contents);
 
         Map<String, Object> generationConfig = new HashMap<>();
-        generationConfig.put("temperature", 0.9); // Increased for more creativity
-        generationConfig.put("topP", 0.95); // Added for more variety
-        generationConfig.put("maxOutputTokens", 2048); // Increased for more detail
-        generationConfig.put("topK", 40); // Added for more random selection
+        generationConfig.put("temperature", 0.9); 
+        generationConfig.put("topP", 0.95); 
+        generationConfig.put("maxOutputTokens", 2048); 
+        generationConfig.put("topK", 40); 
         
         requestBody.put("generationConfig", generationConfig);
 
@@ -284,13 +278,11 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
         try {
             log.debug("Parsing AI response for {} recipes...", recipeCount);
             
-            // Check if we have the expected format
             if (!aiResponse.contains("===RECIPE 1 START===")) {
                 log.warn("AI response doesn't follow expected format, creating fallback recipe");
                 return createFallbackRecipes(aiResponse, pantryItems, preferences);
             }
             
-            // Parse multiple recipes
             for (int i = 1; i <= recipeCount; i++) {
                 String startMarker = "===RECIPE " + i + " START===";
                 String endMarker = "===RECIPE " + i + " END===";
@@ -346,7 +338,6 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
             
             int finalTotalTime = totalTime > 0 ? totalTime : (prepTime + cookTime);
             
-            // If recipe name is generic, enhance it
             String finalRecipeName = enhanceRecipeName(recipeName.trim(), pantryItems);
             
             return new RecipeSuggestion(
@@ -373,7 +364,6 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
             return generateCreativeRecipeName(pantryItems);
         }
         
-        // Check if name is too generic
         String lowerName = recipeName.toLowerCase();
         if (lowerName.contains("stir fry") || lowerName.contains("stir-fry")) {
             return addAdjectivesToRecipe(recipeName, pantryItems);
@@ -395,7 +385,6 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
         String style = cookingStyles[random.nextInt(cookingStyles.length)];
         String extra = extras[random.nextInt(extras.length)];
         
-        // Get main ingredients for more specificity
         String mainProtein = pantryItems.stream()
             .filter(item -> item.getName().toLowerCase().contains("chicken") || 
                            item.getName().toLowerCase().contains("beef") ||
@@ -433,7 +422,6 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
         String season = seasons[random.nextInt(seasons.length)];
         String type = types[random.nextInt(types.length)];
         
-        // Get vegetable for specificity
         String mainVeg = pantryItems.stream()
             .filter(item -> item.getName().toLowerCase().contains("vegetable") ||
                            item.getName().toLowerCase().contains("carrot") ||
@@ -447,7 +435,6 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
     }
     
     private String generateCreativeRecipeName(List<PantryItemDTO> pantryItems) {
-        // Get top 2-3 ingredients for the name
         List<String> mainIngredients = pantryItems.stream()
             .limit(3)
             .map(PantryItemDTO::getName)
@@ -602,7 +589,6 @@ public List<RecipeSuggestion> generateRecipesWithGemini(List<PantryItemDTO> pant
     private List<RecipeSuggestion> createFallbackRecipes(String aiResponse, List<PantryItemDTO> pantryItems, RecipeGenerationRequest preferences) {
         List<RecipeSuggestion> recipes = new ArrayList<>();
         
-        // Create 2-3 fallback recipes with varied names
         int numRecipes = Math.min(3, Math.max(1, recipeCount));
         
         for (int i = 0; i < numRecipes; i++) {

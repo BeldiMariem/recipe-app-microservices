@@ -35,11 +35,11 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 72px;
+    height: 64px;
   }
   
   &-brand {
@@ -53,20 +53,20 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
     .brand-wrapper {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
     }
     
     .brand-icon {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       background: $gradient-primary;
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       
       i {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         color: white;
       }
     }
@@ -74,17 +74,23 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
     .brand-text {
       display: flex;
       flex-direction: column;
+      
+      &.mobile-hidden {
+        @media (max-width: 768px) {
+          display: none;
+        }
+      }
     }
     
     .brand-name {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 800;
       color: $text-dark;
       line-height: 1;
     }
     
     .brand-tagline {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 500;
       color: $text-light;
       margin-top: 2px;
@@ -136,6 +142,7 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
     align-items: center;
     gap: 40px;
     flex: 1;
+    
     .nav-section {
       &.user-section {
         margin-left: auto;
@@ -159,16 +166,16 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 12px 16px;
+      padding: 10px 14px;
       color: $text-light;
       text-decoration: none;
       border-radius: 12px;
       font-weight: 500;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       @include transition();
       
       i {
-        font-size: 1.1rem;
+        font-size: 1rem;
         color: $text-light;
         @include transition();
       }
@@ -207,7 +214,7 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
         right: 4px;
         background: $gradient-primary;
         color: white;
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 600;
         padding: 2px 6px;
         border-radius: 10px;
@@ -219,7 +226,7 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
           
           i {
             color: white;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
           }
         }
       }
@@ -234,15 +241,15 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 10px 20px;
-        border-radius: 12px;
+        padding: 8px 16px;
+        border-radius: 10px;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         text-decoration: none;
         @include transition();
         
         i {
-          font-size: 1rem;
+          font-size: 0.9rem;
         }
         
         &-outline {
@@ -272,9 +279,9 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
     .user-profile {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 8px 12px;
-      border-radius: 16px;
+      gap: 10px;
+      padding: 6px 10px;
+      border-radius: 14px;
       cursor: pointer;
       @include transition();
       
@@ -284,17 +291,17 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
       
       .user-avatar {
         position: relative;
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
         background: $gradient-primary;
-        border-radius: 12px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         
         .avatar-text {
           color: white;
-          font-size: 1.125rem;
+          font-size: 1rem;
           font-weight: 600;
         }
         
@@ -302,8 +309,8 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
           position: absolute;
           bottom: 2px;
           right: 2px;
-          width: 10px;
-          height: 10px;
+          width: 8px;
+          height: 8px;
           background: #10b981;
           border: 2px solid white;
           border-radius: 50%;
@@ -314,18 +321,18 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
         .user-name {
           font-weight: 600;
           color: $text-dark;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
         }
         
         .user-role {
-          font-size: 0.75rem;
+          font-size: 0.7rem;
           color: $text-light;
           margin-top: 2px;
         }
       }
       
       .dropdown-arrow {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         color: $text-light;
         @include transition();
         
@@ -337,11 +344,11 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
     
     .user-dropdown {
       position: absolute;
-      top: calc(100% + 12px);
+      top: calc(100% + 10px);
       right: 0;
-      width: 320px;
+      width: 300px;
       background: white;
-      border-radius: 20px;
+      border-radius: 16px;
       box-shadow: $shadow-lg;
       opacity: 0;
       visibility: hidden;
@@ -356,25 +363,25 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
       }
       
       .dropdown-header {
-        padding: 24px;
+        padding: 20px;
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 12px;
         background: linear-gradient(135deg, rgba($primary-color, 0.05) 0%, rgba($secondary-color, 0.05) 100%);
-        border-radius: 20px 20px 0 0;
+        border-radius: 16px 16px 0 0;
         
         .dropdown-avatar {
-          width: 60px;
-          height: 60px;
+          width: 50px;
+          height: 50px;
           background: $gradient-primary;
-          border-radius: 16px;
+          border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
           
           span {
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
           }
         }
@@ -383,13 +390,13 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
           flex: 1;
           
           .dropdown-name {
-            font-size: 1.125rem;
+            font-size: 1rem;
             font-weight: 700;
             color: $text-dark;
           }
           
           .dropdown-email {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: $text-light;
             margin-top: 4px;
           }
@@ -403,29 +410,29 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
       }
       
       .dropdown-menu {
-        padding: 12px;
+        padding: 8px;
         
         .dropdown-item {
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
+          gap: 10px;
+          padding: 10px 14px;
           color: $text-light;
           text-decoration: none;
-          border-radius: 12px;
+          border-radius: 10px;
           @include transition();
           
           i {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: $text-light;
             @include transition();
-            width: 24px;
+            width: 20px;
             text-align: center;
           }
           
           span {
             flex: 1;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 500;
           }
           
@@ -453,7 +460,7 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
       }
       
       .dropdown-footer {
-        padding: 12px;
+        padding: 8px;
       }
     }
   }
@@ -469,7 +476,7 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
     opacity: 0;
     visibility: hidden;
     @include transition();
-    z-index: 999;
+    z-index: 998;
     
     &.active {
       opacity: 1;
@@ -478,106 +485,294 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
   }
 }
 
+/* Mobile styles - VERTICAL SIDEBAR MENU */
 @media (max-width: 992px) {
   .navbar {
     .container {
-      padding: 0 20px;
+      padding: 0 16px;
+      height: 60px;
+    }
+    
+    &-brand {
+      .brand-icon {
+        width: 32px;
+        height: 32px;
+        
+        i {
+          font-size: 1.1rem;
+        }
+      }
+      
+      /* REMOVE THIS - Show brand text on mobile */
+      /* .brand-text.mobile-hidden {
+        display: none;
+      } */
+      
+      /* INSTEAD: Show brand text but hide tagline on mobile */
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        
+        .brand-tagline {
+          @media (max-width: 768px) {
+            display: none; /* Hide only tagline, not the name */
+          }
+        }
+      }
     }
     
     &-toggle {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 1001;
+      order: 2;
+      margin-left: auto;
+      
+      .toggle-line {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: $text-dark;
+        margin: 3px 0;
+        transition: all 0.3s ease;
+        transform-origin: center;
+      }
+      
+      &.active {
+        .toggle-line:nth-child(1) {
+          transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .toggle-line:nth-child(2) {
+          opacity: 0;
+        }
+        
+        .toggle-line:nth-child(3) {
+          transform: rotate(-45deg) translate(7px, -6px);
+        }
+      }
     }
     
+    &-brand {
+      order: 1;
+    }
+    
+    /* VERTICAL SIDEBAR MENU */
     &-menu {
       position: fixed;
       top: 0;
-      right: -320px;
-      bottom: 0;
+      right: -320px; /* Start off-screen to the right */
       width: 320px;
+      height: 100vh;
       background: white;
       flex-direction: column;
       align-items: stretch;
-      gap: 0;
-      padding: 88px 24px 24px;
-      @include transition(right);
-      z-index: 1000;
+      padding: 80px 24px 32px;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1001;
       overflow-y: auto;
+      box-shadow: $shadow-lg;
+      display: flex !important; /* Force display */
+      gap: 40px;
       
       &.active {
-        right: 0;
+        right: 0; /* Slide in from right */
       }
       
       .nav-section {
         width: 100%;
+        display: flex;
+        flex-direction: column;
         
         &.user-section {
-          margin-top: 40px;
+          margin-top: auto; /* Push to bottom */
           margin-left: 0;
+          padding-top: 20px;
+          border-top: 1px solid $border-color;
         }
       }
       
       .nav-list {
         flex-direction: column;
         gap: 8px;
+        width: 100%;
+      }
+      
+      .nav-item {
+        width: 100%;
       }
       
       .nav-link {
         justify-content: flex-start;
+        padding: 16px 20px;
+        font-size: 1rem;
+        border-radius: 12px;
+        width: 100%;
+        box-sizing: border-box;
+        
+        i {
+          font-size: 1.1rem;
+          min-width: 24px;
+        }
+        
+        .nav-badge {
+          position: static;
+          margin-left: auto;
+        }
       }
       
       .auth-buttons {
         flex-direction: column;
+        gap: 12px;
+        width: 100%;
         
         .btn {
           width: 100%;
           justify-content: center;
+          padding: 14px 20px;
+          font-size: 1rem;
+          
+          i {
+            font-size: 1rem;
+          }
         }
       }
       
       .user-profile {
         width: 100%;
+        padding: 12px 16px;
+        background: rgba($primary-color, 0.02);
+        border-radius: 12px;
+        border: 1px solid $border-color;
+        margin-bottom: 12px;
+        
+        .user-info {
+          flex: 1;
+        }
       }
       
       .user-dropdown {
         position: static;
         width: 100%;
-        margin-top: 12px;
-        box-shadow: $shadow-sm;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
+        margin-top: 8px;
+        box-shadow: none;
+        border: 1px solid $border-color;
+        border-radius: 12px;
         display: none;
         
         &.active {
           display: block;
           animation: slideDown 0.3s ease;
         }
+        
+        .dropdown-header {
+          padding: 16px;
+          
+          .dropdown-avatar {
+            width: 44px;
+            height: 44px;
+          }
+        }
+      }
+    }
+    
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      
+      &.active {
+        opacity: 1;
+        visibility: visible;
       }
     }
   }
 }
 
+/* Extra small devices */
 @media (max-width: 576px) {
   .navbar {
     .container {
-      padding: 0 16px;
-    }
-    
-    &-brand {
-      .brand-text {
-        .brand-name {
-          font-size: 1.25rem;
-        }
-        
-        .brand-tagline {
-          display: none;
-        }
-      }
+      padding: 0 12px;
+      height: 56px;
     }
     
     &-menu {
       width: 280px;
+      right: -280px;
+      padding: 72px 20px 28px;
     }
+    
+    /* REMOVE THIS - Show brand on all mobile sizes */
+    /* &-brand {
+      display: none;
+    } */
+    
+    /* Adjust brand for very small screens */
+    &-brand {
+      .brand-icon {
+        width: 28px;
+        height: 28px;
+        
+        i {
+          font-size: 1rem;
+        }
+      }
+      
+      .brand-name {
+        font-size: 1.1rem; /* Slightly smaller on very small screens */
+      }
+    }
+    
+    &-toggle {
+      margin-right: 0;
+    }
+  }
+}
+
+/* REMOVE or COMMENT OUT this section to show brand on mobile */
+/* 
+@media (max-width: 768px) {
+  .navbar-brand {
+    display: none;
+  }
+  
+  .navbar-toggle {
+    margin-left: auto;
+  }
+}
+*/
+
+/* Instead, keep brand visible and adjust if needed */
+@media (max-width: 768px) {
+  .navbar-brand {
+    display: flex !important; /* Force display */
+    
+    .brand-text {
+      .brand-tagline {
+        display: none; /* Hide only the tagline */
+      }
+    }
+  }
+  
+  .navbar-toggle {
+    margin-left: auto;
   }
 }
 
@@ -593,5 +788,20 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
 }
 
 .page-content {
-  padding-top: 72px;
+  padding-top: 64px;
+  
+  @media (max-width: 992px) {
+    padding-top: 60px;
+  }
+  
+  @media (max-width: 576px) {
+    padding-top: 56px;
+  }
+}
+
+/* Prevent body scrolling when menu is open */
+body.menu-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }

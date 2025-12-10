@@ -20,7 +20,7 @@ export class LoginComponent {
     password: ''
   };
   isLoading = false;
-
+  showPassword = false;
   onSubmit() {
     if (this.isLoading) return;
     
@@ -40,4 +40,8 @@ export class LoginComponent {
       }
     });
   }
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
 }
