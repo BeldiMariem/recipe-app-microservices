@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-app
+  namespace: default
+  labels:
+    app: frontend-recipe-app
+    component: frontend
+spec:
+  replicas: 2  
+  selector:
+    matchLabels:
+      app: frontend-recipe-app
+  template:
+    metadata:
+      labels:
+        app: frontend-recipe-app
+        component: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: mariem19/frontend-recipe-app:latest  
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: API_BASE_URL
+          value: "http://localhost-service:8080"  
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/
+          readOnly: true
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: frontend-nginx-config

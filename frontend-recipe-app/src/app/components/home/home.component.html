@@ -218,10 +218,6 @@
                                     <i class="bi bi-clock"></i>
                                     {{ recipe.preparationTime }} min
                                 </div>
-                                <div class="recipe-rating">
-                                    <i class="bi bi-star-fill"></i>
-                                    {{ recipe.rating || '4.5' }}
-                                </div>
                             </div>
 
                             <h3 class="recipe-title">{{ recipe.title }}</h3>
@@ -239,19 +235,6 @@
                                     <i class="bi bi-list-check"></i>
                                     {{ recipe.ingredients!.length || 0 }} ingredients
                                 </div>
-                            </div>
-
-                            <div class="recipe-footer">
-                                <div class="recipe-author">
-                                    <div class="author-avatar">
-                                        {{ recipe.userId!.charAt(0) || 'C' }}
-                                    </div>
-                                    <span>By {{ recipe.userId || 'Community' }}</span>
-                                </div>
-                                <button class="btn-view">
-                                    <span>View Recipe</span>
-                                    <i class="bi bi-arrow-right"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -306,16 +289,7 @@
                     
                 </div>
 
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <div class="icon-wrapper gradient-4">
-                            <i class="bi bi-phone"></i>
-                        </div>
-                    </div>
-                    <h3>Mobile Experience</h3>
-                    <p>Access recipes, pantry, and meal planner from anywhere with our mobile app.</p>
-                    
-                </div>
+                
             </div>
         </div>
     </section>
@@ -329,7 +303,7 @@
                         Ready to Start?
                     </div>
                     <h2>Join Thousands of Happy Cooks</h2>
-                    <p>Start your culinary journey today with our 14-day free trial. No credit card required.</p>
+                    <p>Start your culinary journey today with our free trial. No credit card required.</p>
                     <div class="cta-buttons">
                         <a routerLink="/register" class="btn btn-primary">
                             <span>Get Started Free</span>
