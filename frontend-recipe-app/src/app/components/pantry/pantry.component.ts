@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { PantryService } from '../../services/pantry.service';
 import { PantryItem, AddPantryItemRequest } from '../../models/pantry.model';
 import { RecipeService } from '../../services/recipe.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-pantry',
@@ -18,6 +19,7 @@ export class PantryComponent implements OnInit {
     private recipeService = inject(RecipeService);
     private fb = inject(FormBuilder);
     private cdr = inject(ChangeDetectorRef);
+    private authService = inject(AuthService);
 
     pantryItems: PantryItem[] = [];
     filteredItems: PantryItem[] = [];
@@ -34,7 +36,7 @@ export class PantryComponent implements OnInit {
     showModal = false;
     editingItem: PantryItem | null = null;
     pantryForm: FormGroup;
-
+    currentUser:any;
     constructor() {
         this.pantryForm = this.fb.group({
             name: ['', Validators.required],
@@ -47,6 +49,8 @@ export class PantryComponent implements OnInit {
 
     ngOnInit() {
         this.loadPantryItems();
+            this.currentUser = this.authService.getCurrentUser();
+
     }
 
     loadPantryItems(): void {
@@ -272,7 +276,12 @@ export class PantryComponent implements OnInit {
 
     deleteItem(item: PantryItem): void {
         if (confirm(`Are you sure you want to remove "${item.name}" from your pantry?`)) {
-            this.loadPantryItems();
+            this.pantryService.deletePantry(item.id!).subscribe({
+                next: () => {
+                    this.loadPantryItems();
+                },
+                error: (error) => console.error('Error updating item:', error)
+            });
         }
     }
 

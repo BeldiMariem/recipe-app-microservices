@@ -60,6 +60,12 @@ public class PantryService {
         PantryItem updatedItem = pantryRepository.save(item);
         return pantryMapper.toResponse(updatedItem);
     }
+    public void deletePantry(Long id, String userId) {
+        PantryItem pantry = pantryRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new RuntimeException("Pantry not found or you don't have permission to delete it"));
+        pantryRepository.delete(pantry);
+    }
+
 
 }
 

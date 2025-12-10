@@ -15,6 +15,8 @@ export interface AIRecipe {
   highConfidence: boolean;
   mediumConfidence: boolean;
   lowConfidence: boolean;
+  showDetails?: boolean;
+
 }
 
 export interface RecipeGenerationRequest {

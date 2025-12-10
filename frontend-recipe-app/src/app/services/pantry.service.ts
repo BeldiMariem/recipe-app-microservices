@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class PantryService {
-  private apiUrl = 'http://localhost:8080/api/pantry';
+  private apiUrl = 'http://localhost:8080';
 
   constructor(
     private http: HttpClient,
@@ -25,32 +25,37 @@ export class PantryService {
   }
 
   getPantryItems(): Observable<PantryItem[]> {
-    return this.http.get<PantryItem[]>(`${this.apiUrl}/items`, {
+    return this.http.get<PantryItem[]>(`${this.apiUrl}/api/pantry/items`, {
       headers: this.getHeaders()
     });
   }
 
   addPantryItem(item: AddPantryItemRequest): Observable<PantryItem> {
-    return this.http.post<PantryItem>(`${this.apiUrl}/items/addItem`, item, {
+    return this.http.post<PantryItem>(`${this.apiUrl}/api/pantry/items/addItem`, item, {
       headers: this.getHeaders()
     });
   }
 
   updatePantryItem(itemId: number, item: AddPantryItemRequest): Observable<PantryItem> {
-    return this.http.put<PantryItem>(`${this.apiUrl}/items/updateItem/${itemId}`, item, {
+    return this.http.put<PantryItem>(`${this.apiUrl}/api/pantry/items/updateItem/${itemId}`, item, {
       headers: this.getHeaders()
     });
   }
 
   getExpiringItems(): Observable<PantryItem[]> {
-    return this.http.get<PantryItem[]>(`${this.apiUrl}/items/expiring`, {
+    return this.http.get<PantryItem[]>(`${this.apiUrl}/api/pantry/items/expiring`, {
       headers: this.getHeaders()
     });
   }
 
   getItemById(itemId: number): Observable<PantryItem> {
-    return this.http.get<PantryItem>(`${this.apiUrl}/items/getItemById/${itemId}`, {
+    return this.http.get<PantryItem>(`${this.apiUrl}/api/pantry/items/getItemById/${itemId}`, {
       headers: this.getHeaders()
     });
+  }
+  deletePantry(id: number): Observable<void> {
+      return this.http.delete<void>(`${this.apiUrl}/api/pantry/deletePantry/${id}`, {
+        headers: this.getHeaders()
+      });
   }
 }

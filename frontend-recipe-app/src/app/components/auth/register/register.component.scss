@@ -196,9 +196,8 @@ $gradient-warning: linear-gradient(135deg, $warning-color 0%, #fda085 100%);
         box-shadow: 0 0 0 4px rgba($primary-color, 0.1);
       }
       
-      &::placeholder {
-        color: lighten($text-light, 20%);
-      }
+
+      
     }
     
     .form-helper {

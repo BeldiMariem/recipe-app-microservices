@@ -63,4 +63,14 @@ public class PantryController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @DeleteMapping("/deletePantry/{id}")
+    public ResponseEntity<Void> deletePantry(@PathVariable Long id, @RequestHeader("User-Id") String userId) {
+        try {
+            pantryService.deletePantry(id, userId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

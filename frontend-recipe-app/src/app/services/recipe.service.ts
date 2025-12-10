@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class RecipeService {
-  private apiUrl = 'http://localhost:8080/api/recipes';
+  private apiUrl = 'http://localhost:8080';
   constructor(
     private http: HttpClient,
     private authService: AuthService
@@ -24,53 +24,53 @@ export class RecipeService {
   }
 
   getRecipeSuggestions(): Observable<Recipe[]> {
-    return this.http.get<Recipe[]>(`${this.apiUrl}/suggestions`, {
+    return this.http.get<Recipe[]>(`${this.apiUrl}/api/recipes/suggestions`, {
       headers: this.getHeaders()
     });
   }
 
   getUseItUpRecipes(): Observable<Recipe[]> {
-    return this.http.get<Recipe[]>(`${this.apiUrl}/use-it-up`, {
+    return this.http.get<Recipe[]>(`${this.apiUrl}/api/recipes/use-it-up`, {
       headers: this.getHeaders()
     });
   }
 
   getAllRecipes(): Observable<Recipe[]> {
-    return this.http.get<Recipe[]>(`${this.apiUrl}/all`, {
+    return this.http.get<Recipe[]>(`${this.apiUrl}/api/recipes/all`, {
       headers: this.getHeaders()
     });
   }
 
   getPublicRecipes(): Observable<Recipe[]> {
-    return this.http.get<Recipe[]>(`${this.apiUrl}/public`);
+    return this.http.get<Recipe[]>(`${this.apiUrl}/api/recipes/public`);
   }
 
   getMyRecipes(): Observable<Recipe[]> {
-    return this.http.get<Recipe[]>(`${this.apiUrl}/my-recipes`, {
+    return this.http.get<Recipe[]>(`${this.apiUrl}/api/recipes/my-recipes`, {
       headers: this.getHeaders()
     });
   }
 
   getRecipeById(id: number): Observable<Recipe> {
-    return this.http.get<Recipe>(`${this.apiUrl}/getRecipeById/${id}`, {
+    return this.http.get<Recipe>(`${this.apiUrl}/api/recipes/getRecipeById/${id}`, {
       headers: this.getHeaders()
     });
   }
 
   createRecipe(recipe: CreateRecipeRequest): Observable<Recipe> {
-    return this.http.post<Recipe>(`${this.apiUrl}/createRecipe`, recipe, {
+    return this.http.post<Recipe>(`${this.apiUrl}/api/recipes/createRecipe`, recipe, {
       headers: this.getHeaders()
     });
   }
 
   updateRecipe(id: number, recipe: any): Observable<Recipe> {
-    return this.http.put<Recipe>(`${this.apiUrl}/updateRecipe/${id}`, recipe, {
+    return this.http.put<Recipe>(`${this.apiUrl}/api/recipes/updateRecipe/${id}`, recipe, {
       headers: this.getHeaders()
     });
   }
 
   deleteRecipe(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/deleteRecipe/${id}`, {
+    return this.http.delete<void>(`${this.apiUrl}/api/recipes/deleteRecipe/${id}`, {
       headers: this.getHeaders()
     });
   }

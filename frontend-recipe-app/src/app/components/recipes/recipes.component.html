@@ -17,8 +17,8 @@
                         Create Recipe
                     </button>
                     <button class="btn btn-outline-secondary" (click)="showMyRecipes()">
-                        <i class="bi bi-download"></i>
-                        My Recipes
+                        <i class="bi bi-egg-fried"></i>
+                         My Recipes
                     </button>
                 </div>
 
@@ -26,48 +26,7 @@
         </div>
     </div>
 
-    <div class="recipe-stats" *ngIf="recipes.length > 0">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon total">
-                        <i class="bi bi-book"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>{{ totalRecipes }}</h3>
-                        <p>Total Recipes</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon easy">
-                        <i class="bi bi-emoji-smile"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>{{ getDifficultyCount('EASY') }}</h3>
-                        <p>Easy Recipes</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon popular">
-                        <i class="bi bi-fire"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>{{ getPopularRecipesCount() }}</h3>
-                        <p>Popular Recipes</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon categories">
-                        <i class="bi bi-tags"></i>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
+   
 
     <div class="container">
         <div class="recipes-content">
@@ -97,9 +56,6 @@
                         <label>Sort by:</label>
                         <select [(ngModel)]="sortBy" (change)="filterRecipes()">
                             <option value="newest">Newest First</option>
-                            <option value="popular">Most Popular</option>
-                            <option value="rating">Highest Rated</option>
-                            <option value="time">Quickest</option>
                         </select>
                     </div>
                 </div>
@@ -178,18 +134,11 @@
                             </div>
                             <div class="meta-item">
                                 <i class="bi bi-star-fill"></i>
-                                {{ recipe.rating?.toFixed(1) || '4.5' }}
+                                {{ recipe.rating!.toFixed(1) || '4.5' }}
                             </div>
                         </div>
 
-                        <div class="recipe-footer">
-                            <div class="recipe-author">
-                                <div class="author-avatar">
-                                    {{ (recipe.userId)?.charAt(0) || 'C' }}
-                                </div>
-                                <span>By {{ recipe.userId || recipe.userId || 'Community' }}</span>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -225,21 +174,15 @@
                             </div>
                             <div class="meta-item">
                                 <i class="bi bi-star-fill"></i>
-                                {{ recipe.rating?.toFixed(1) || '4.5' }} ({{ recipe.ratingCount || 0 }})
+                                {{ recipe.rating!.toFixed(1) || '4.5' }} ({{ recipe.ratingCount || 0 }})
                             </div>
                             <div class="meta-item">
                                 <i class="bi bi-list-check"></i>
-                                {{ recipe.ingredients?.length || 0 }} ingredients
+                                {{ recipe.ingredients!.length || 0 }} ingredients
                             </div>
                         </div>
 
                         <div class="list-footer">
-                            <div class="author-info">
-                                <div class="author-avatar">
-                                    {{ (recipe.userId || recipe.userId)?.charAt(0) || 'C' }}
-                                </div>
-                                <span>By {{ recipe.userId || recipe.userId || 'Community' }}</span>
-                            </div>
 
                             <div class="list-actions">
                                 <button class="action-btn save-btn" (click)="saveRecipe($event, recipe)">
