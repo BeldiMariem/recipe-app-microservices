@@ -14,7 +14,7 @@ import { AuthService } from '../../../services/auth.service';
 export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
-  
+
   userData = {
     username: '',
     email: '',
@@ -23,51 +23,55 @@ export class RegisterComponent {
     lastName: ''
   };
   isLoading = false;
+  showPassword = false;
 
-getPasswordStrength(): string {
-  const password = this.userData.password;
-  if (!password) return '';
-  
-  const hasMinLength = password.length >= 6;
-  const hasUppercase = /[A-Z]/.test(password);
-  const hasNumber = /\d/.test(password);
-  const hasSpecial = /[!@#$%^&*]/.test(password);
-  
-  const strength = [hasMinLength, hasUppercase, hasNumber, hasSpecial].filter(Boolean).length;
-  
-  if (strength <= 1) return 'weak';
-  if (strength <= 3) return 'medium';
-  return 'strong';
-}
-
-getPasswordStrengthText(): string {
-  const strength = this.getPasswordStrength();
-  switch (strength) {
-    case 'weak': return 'Weak password';
-    case 'medium': return 'Medium password';
-    case 'strong': return 'Strong password';
-    default: return '';
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
-}
+  getPasswordStrength(): string {
+    const password = this.userData.password;
+    if (!password) return '';
 
-hasMinLength(): boolean {
-  return this.userData.password.length >= 6;
-}
+    const hasMinLength = password.length >= 6;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*]/.test(password);
 
-hasUppercase(): boolean {
-  return /[A-Z]/.test(this.userData.password);
-}
+    const strength = [hasMinLength, hasUppercase, hasNumber, hasSpecial].filter(Boolean).length;
 
-hasNumber(): boolean {
-  return /\d/.test(this.userData.password);
-}
+    if (strength <= 1) return 'weak';
+    if (strength <= 3) return 'medium';
+    return 'strong';
+  }
 
-hasSpecial(): boolean {
-  return /[!@#$%^&*]/.test(this.userData.password);
-}
+  getPasswordStrengthText(): string {
+    const strength = this.getPasswordStrength();
+    switch (strength) {
+      case 'weak': return 'Weak password';
+      case 'medium': return 'Medium password';
+      case 'strong': return 'Strong password';
+      default: return '';
+    }
+  }
+
+  hasMinLength(): boolean {
+    return this.userData.password.length >= 6;
+  }
+
+  hasUppercase(): boolean {
+    return /[A-Z]/.test(this.userData.password);
+  }
+
+  hasNumber(): boolean {
+    return /\d/.test(this.userData.password);
+  }
+
+  hasSpecial(): boolean {
+    return /[!@#$%^&*]/.test(this.userData.password);
+  }
   onSubmit() {
     if (this.isLoading) return;
-    
+
     this.isLoading = true;
     this.authService.register(this.userData).subscribe({
       next: () => {

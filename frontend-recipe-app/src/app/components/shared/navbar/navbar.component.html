@@ -27,7 +27,7 @@
               <span>Home</span>
             </a>
           </li>
-          
+
           <li class="nav-item" *ngIf="isLoggedIn">
             <a class="nav-link" routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">
               <i class="bi bi-speedometer2"></i>
@@ -46,9 +46,7 @@
               <span>Pantry</span>
             </a>
           </li>
-          
-   
-          
+
           <li class="nav-item" *ngIf="isLoggedIn">
             <a class="nav-link premium" routerLink="/ai-chef" routerLinkActive="active" (click)="closeMenu()">
               <i class="bi bi-magic"></i>
@@ -98,9 +96,9 @@
                 <div class="dropdown-email">{{ currentUser?.email || 'user@example.com' }}</div>
               </div>
             </div>
-            
+
             <div class="dropdown-divider"></div>
-            
+
             <div class="dropdown-menu">
               <a class="dropdown-item" routerLink="/dashboard" (click)="closeMenu()">
                 <i class="bi bi-speedometer2"></i>
@@ -119,13 +117,13 @@
                 <span>Saved Recipes</span>
               </a>
             </div>
-            
+
             <div class="dropdown-divider"></div>
-            
+
             <div class="dropdown-footer">
               <a class="dropdown-item logout" (click)="logout($event)">
                 <i class="bi bi-box-arrow-right"></i>
-                <span>Log Out</span>
+                <span> Log Out</span>
               </a>
             </div>
           </div>

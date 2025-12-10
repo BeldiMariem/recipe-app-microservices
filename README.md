@@ -5,6 +5,15 @@
 
 This is a full-stack recipe management application with a modern **Angular frontend** and a **Spring Boot microservices backend**. The system manages recipes, pantries, and AI-powered recipe generation.
 
+##  🎯 Project Vision
+A microservices application built to explore and implement modern cloud-native patterns using:
+
+- Kubernetes orchestration (migrated from Eureka)
+- Spring Boot 4 microservices with Java 21
+- Angular frontend with modern reactive patterns
+- AI integration via Google Gemini
+- Full CI/CD automation with GitHub Actions
+
 ### **Recent Major Upgrades:**
 - ✅ **All backend services upgraded to Spring Boot 4** for latest features and full **Java 21** support
 - ✅ **Migration from Eureka Server to Kubernetes** for modern cloud-native orchestration
@@ -194,10 +203,22 @@ Intelligent recipe generator using **Google Gemini AI** (Gemini 2.0 Flash) to cr
 The project includes **automated CI/CD pipelines** that run on every push and pull request:
 
 #### **📦 Backend Services Pipeline** (`.github/workflows/backend-ci.yml`)
-
+```yaml
+✅ Builds and tests 5 Spring Boot microservices in parallel
+✅ Runs Maven tests for each service
+✅ Builds Docker images for all services
+✅ Pushes images to Docker Hub registry
+✅ Uses JDK 21 with optimized caching
+```
 
 #### **🎨 Frontend Application Pipeline** (`.github/workflows/frontend-ci.yml`)
-
+```yaml
+✅ Builds Angular 21 application with optimization
+✅ Runs unit tests with Chrome Headless
+✅ Caches npm dependencies for faster builds
+✅ Uses Docker Buildx with multi-layer caching
+✅ Pushes production-ready Docker image
+✅ Smart path-based triggering (only runs when frontend changes)
 ```
 
 ### **Pipeline Status Badges**

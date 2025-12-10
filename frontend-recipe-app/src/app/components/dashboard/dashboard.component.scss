@@ -136,6 +136,7 @@ $transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
       .username {
         background: linear-gradient(120deg, $primary-color, $secondary-color);
+        -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
     }
