@@ -1,13 +1,36 @@
 version: '3.8'
 
 services:
+  frontend:
+    build:
+      context: ./frontend-recipe-app
+      dockerfile: Dockerfile
+    container_name: frontend-app
+    ports:
+      - "4200:80"  
+      - "443:443" 
+    environment:
+      - NODE_ENV=production
+      - API_BASE_URL=http://localhost:8080
+    networks:
+      - recipe-network
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]  
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+
   user-db:
     image: postgres:13
     container_name: user-db
     environment:
       POSTGRES_DB: userdb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${USER_DB_PASSWORD:-password}
+      POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
     networks:
@@ -24,7 +47,7 @@ services:
     environment:
       POSTGRES_DB: pantrydb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${PANTRY_DB_PASSWORD:-password}
+      POSTGRES_PASSWORD: password
     ports:
       - "5433:5432"
     networks:
@@ -41,25 +64,11 @@ services:
     environment:
       POSTGRES_DB: recipedb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD:  ${RECIPE_DB_PASSWORD:-password}
+      POSTGRES_PASSWORD: password
     ports:
       - "5434:5432"
     networks:
       - recipe-network
-
-  service-discovery:
-    build: ./service-discovery
-    container_name: service-discovery
-    ports:
-      - "8761:8761"
-    networks:
-      - recipe-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
 
   api-gateway:
     build: ./api-gateway
@@ -67,10 +76,13 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      service-discovery:
-        condition: service_healthy
+      - user-service
+      - pantry-service
+      - recipe-service
+      - ai-chef-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - FRONTEND_URL=http://frontend:80 
     networks:
       - recipe-network
     healthcheck:
@@ -86,14 +98,11 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      service-discovery:
-        condition: service_healthy
-      user-db:
-        condition: service_healthy
+      - user-db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/userdb
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=${USER_DB_PASSWORD:-password}
+      - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - recipe-network
@@ -110,14 +119,11 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      service-discovery:
-        condition: service_healthy
-      pantry-db:
-        condition: service_healthy
+      - pantry-db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://pantry-db:5432/pantrydb
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=${PANTRY_DB_PASSWORD:-password}
+      - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - recipe-network
@@ -134,12 +140,11 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - service-discovery
       - recipe-db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://recipe-db:5432/recipedb
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=${RECIPE_DB_PASSWORD:-password}
+      - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_PROFILES_ACTIVE=docker
     networks:
       - recipe-network
@@ -150,11 +155,15 @@ services:
     ports:
       - "8084:8084"
     environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka
+      - SPRING_PROFILES_ACTIVE=docker
       - GEMINI_API_KEY=${OPENAI_API_KEY}
+      - PANTRIES_SERVICE_URL=http://pantry-service:8082
+      - RECIPES_SERVICE_URL=http://recipe-service:8083
+      - USERS_SERVICE_URL=http://user-service:8081
     depends_on:
-      - service-discovery
       - pantry-service
+      - recipe-service
+      - user-service
     networks:
       - recipe-network
 

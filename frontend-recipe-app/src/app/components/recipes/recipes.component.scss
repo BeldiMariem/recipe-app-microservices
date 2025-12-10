@@ -164,7 +164,6 @@ $transition: all 0.3s ease;
                     border-color: $primary-color;
 
                     &:hover {
-                        background-color: darken($primary-color, 8%);
                         transform: translateY(-2px);
                         box-shadow: 0 4px 12px rgba($primary-color, 0.2);
                     }
@@ -952,9 +951,7 @@ $transition: all 0.3s ease;
                                     border: 1px solid $primary-color;
                                     color: white;
 
-                                    &:hover {
-                                        background: darken($primary-color, 8%);
-                                    }
+
                                 }
                             }
                         }

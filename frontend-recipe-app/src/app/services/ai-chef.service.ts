@@ -3,12 +3,13 @@ import { Observable } from 'rxjs';
 import { RecipeGenerationRequest, RecipeGenerationResponse } from '../models/ai-chef.model';
 import { AuthService } from './auth.service';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AiChefService {
-  private apiUrl = 'http://localhost:8080/api/ai';
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
@@ -25,13 +26,13 @@ export class AiChefService {
   }
 
   generateRecipes(request: RecipeGenerationRequest): Observable<RecipeGenerationResponse> {
-    return this.http.post<RecipeGenerationResponse>(`${this.apiUrl}/generate-recipes`, request, {
+    return this.http.post<RecipeGenerationResponse>(`${this.apiUrl}/api/ai/generate-recipes`, request, {
       headers: this.getHeaders()
     });
   }
 
   getQuickSuggestions(mealType?: string, maxTime?: number): Observable<RecipeGenerationResponse> {
-    let url = `${this.apiUrl}/quick-suggestions`;
+    let url = `${this.apiUrl}/api/ai/quick-suggestions`;
     const params: string[] = [];
     
     if (mealType) params.push(`mealType=${mealType}`);
@@ -47,7 +48,7 @@ export class AiChefService {
   }
 
   getUseItUpRecipes(): Observable<RecipeGenerationResponse> {
-    return this.http.get<RecipeGenerationResponse>(`${this.apiUrl}/use-it-up`, {
+    return this.http.get<RecipeGenerationResponse>(`${this.apiUrl}/api/ai/use-it-up`, {
       headers: this.getHeaders()
     });
   }

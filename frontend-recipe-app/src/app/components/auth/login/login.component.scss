@@ -187,9 +187,7 @@ $gradient-primary: linear-gradient(135deg, $primary-color 0%, $secondary-color 1
         box-shadow: 0 0 0 4px rgba($primary-color, 0.1);
       }
       
-      &::placeholder {
-        color: lighten($text-light, 20%);
-      }
+
     }
     
     .password-input {

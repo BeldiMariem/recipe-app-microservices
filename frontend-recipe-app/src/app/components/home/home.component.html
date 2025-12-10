@@ -1,17 +1,13 @@
 <div class="home-page">
-    <!-- Modern Hero Section -->
     <section class="hero-section">
-        <!-- Background Elements -->
         <div class="hero-background">
             <div class="bg-gradient"></div>
             <div class="bg-pattern"></div>
             <div class="bg-blur"></div>
         </div>
 
-        <!-- Hero Content -->
         <div class="hero-container">
             <div class="hero-content">
-                <!-- Left Column - Text Content -->
                 <div class="hero-text-content">
                     <div class="hero-badge">
                         <span class="badge-icon">🎯</span>
@@ -55,7 +51,6 @@
                     </div>
                 </div>
 
-                <!-- Right Column - Visual Content -->
                 <div class="hero-visual-content">
                     <div class="recipe-showcase">
                         <div class="showcase-card card-1">
@@ -159,7 +154,6 @@
         </div>
     </section>
 
-    <!-- Recipes Section -->
     <section class="recipes-section" id="recipes">
         <div class="container">
             <div class="section-header">
@@ -184,7 +178,6 @@
                 <p>Loading fresh recipes...</p>
             </div>
 
-            <!-- Empty State -->
             <div *ngIf="!isLoading && publicRecipes.length === 0" class="empty-state">
                 <div class="empty-state-animation">
                     <div class="empty-icon">🍳</div>
@@ -198,11 +191,9 @@
                 </a>
             </div>
 
-            <!-- Recipes Grid -->
             <div *ngIf="!isLoading && publicRecipes.length > 0" class="recipes-grid">
                 <div class="recipe-card" *ngFor="let recipe of publicRecipes" (click)="viewRecipeDetails(recipe.id!)">
                     <div class="recipe-card-inner">
-                        <!-- Recipe Image -->
                         <div class="recipe-image-container">
                             <div class="recipe-image-wrapper">
                                 <img *ngIf="recipe.imageUrl" [src]="recipe.imageUrl" [alt]="recipe.title"
@@ -246,14 +237,14 @@
                                 </div>
                                 <div class="meta-item">
                                     <i class="bi bi-list-check"></i>
-                                    {{ recipe.ingredients?.length || 0 }} ingredients
+                                    {{ recipe.ingredients!.length || 0 }} ingredients
                                 </div>
                             </div>
 
                             <div class="recipe-footer">
                                 <div class="recipe-author">
                                     <div class="author-avatar">
-                                        {{ recipe.userId?.charAt(0) || 'C' }}
+                                        {{ recipe.userId!.charAt(0) || 'C' }}
                                     </div>
                                     <span>By {{ recipe.userId || 'Community' }}</span>
                                 </div>
@@ -269,7 +260,6 @@
         </div>
     </section>
 
-    <!-- Features Section -->
     <section class="features-section" id="features">
         <div class="container">
             <div class="section-header">
@@ -330,7 +320,6 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
             <div class="cta-card">

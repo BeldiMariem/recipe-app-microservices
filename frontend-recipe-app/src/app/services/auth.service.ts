@@ -10,7 +10,7 @@ import { LoginRequest, RegisterRequest, AuthResponse, User } from '../models/use
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = 'http://localhost:8080';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
@@ -38,7 +38,7 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, credentials)
       .pipe(
         tap(response => {
           localStorage.setItem('token', response.token);
@@ -56,7 +56,7 @@ export class AuthService {
   }
 
   register(userData: RegisterRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, userData);
+    return this.http.post(`${this.apiUrl}/auth/register`, userData);
   }
 
   logout() {

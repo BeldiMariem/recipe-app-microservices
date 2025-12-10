@@ -119,25 +119,16 @@
             <div class="tile-icon">
               <i class="bi bi-basket"></i>
             </div>
-            <div class="tile-badge">
-              <span class="badge-count">12</span>
-              <span class="badge-label">Items</span>
+           <div class="tile-badge ai-badge">
+              <i class="bi bi-stars"></i>
+              <span>Explore</span>
             </div>
           </div>
           <div class="tile-content">
             <h3>Smart Pantry</h3>
             <p>Track ingredients, reduce waste, get expiration alerts</p>
           </div>
-          <div class="tile-footer">
-            <div class="tile-stats">
-              <span class="stat"><i class="bi bi-exclamation-triangle"></i> 3 expiring</span>
-              <span class="stat"><i class="bi bi-arrow-down"></i> 2 low stock</span>
-            </div>
-            <div class="tile-cta">
-              <span>Manage</span>
-              <i class="bi bi-arrow-right"></i>
-            </div>
-          </div>
+         
         </div>
         
         <div class="feature-tile recipes-tile" (click)="navigateTo('/recipes')">
@@ -154,16 +145,7 @@
             <h3>Recipe Collection</h3>
             <p>Browse, save, and create recipes from our community</p>
           </div>
-          <div class="tile-footer">
-            <div class="tile-stats">
-              <span class="stat"><i class="bi bi-fire"></i> 8 saved</span>
-              <span class="stat"><i class="bi bi-plus"></i> 2 created</span>
-            </div>
-            <div class="tile-cta">
-              <span>Browse</span>
-              <i class="bi bi-arrow-right"></i>
-            </div>
-          </div>
+          
         </div>
         
         <div class="feature-tile ai-tile" (click)="navigateTo('/ai-chef')">
@@ -180,16 +162,7 @@
             <h3>AI Chef Assistant</h3>
             <p>Get personalized recipes based on your pantry and preferences</p>
           </div>
-          <div class="tile-footer">
-            <div class="tile-stats">
-              <span class="stat"><i class="bi bi-bulb"></i> Smart suggestions</span>
-              <span class="stat"><i class="bi bi-clock"></i> Quick meals</span>
-            </div>
-            <div class="tile-cta">
-              <span>Try Now</span>
-              <i class="bi bi-arrow-right"></i>
-            </div>
-          </div>
+         
         </div>
         
         <div class="feature-tile planner-tile" (click)="navigateTo('/meal-planner')">
@@ -206,16 +179,6 @@
             <h3>Meal Planner</h3>
             <p>Plan your weekly meals and generate shopping lists</p>
           </div>
-          <div class="tile-footer">
-            <div class="tile-stats">
-              <span class="stat"><i class="bi bi-check"></i> 3 planned</span>
-              <span class="stat"><i class="bi bi-list"></i> Shopping list</span>
-            </div>
-            <div class="tile-cta">
-              <span>Plan</span>
-              <i class="bi bi-arrow-right"></i>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -225,10 +188,7 @@
     <div class="container">
       <div class="tips-header">
         <h2><i class="bi bi-lightbulb"></i> Cooking Tips</h2>
-        <button class="refresh-tips" (click)="refreshTips()">
-          <i class="bi bi-arrow-clockwise"></i>
-          New Tips
-        </button>
+
       </div>
       <div class="tips-carousel">
         <div class="tip-card">
