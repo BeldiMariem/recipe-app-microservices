@@ -49,7 +49,7 @@ export class PantryComponent implements OnInit {
 
     ngOnInit() {
         this.loadPantryItems();
-            this.currentUser = this.authService.getCurrentUser();
+        this.currentUser = this.authService.getCurrentUser();
 
     }
 
