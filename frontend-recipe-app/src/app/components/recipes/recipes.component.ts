@@ -18,15 +18,18 @@ export class RecipesComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
-    private cdr = inject(ChangeDetectorRef);
+  private cdr = inject(ChangeDetectorRef);
 
   recipes: Recipe[] = [];
   filteredRecipes: Recipe[] = [];
   isLoggedIn = false;
-
+  showDeleteConfirmation = false;
+  recipeToDelete: Recipe | null = null;
+  isDeleting = false;
   searchQuery = '';
   selectedDifficulty = 'all';
   sortBy = 'newest';
+
   viewMode: 'grid' | 'list' = 'grid';
 
   currentPage = 1;
@@ -38,7 +41,7 @@ export class RecipesComponent implements OnInit {
   recipeForm: FormGroup;
   tags: string[] = [];
   tagInput = '';
-
+  currentUser: any;
   constructor() {
     this.recipeForm = this.fb.group({
       title: ['', Validators.required],
@@ -56,6 +59,8 @@ export class RecipesComponent implements OnInit {
   ngOnInit() {
     this.checkAuth();
     this.loadRecipes();
+    this.currentUser = this.authService.getUserId();
+
   }
 
   get ingredientsArray(): FormArray {
@@ -71,18 +76,18 @@ export class RecipesComponent implements OnInit {
   }
 
   loadRecipes(): void {
-                this.cdr.detectChanges(); 
-    
+    this.cdr.detectChanges();
+
     if (this.isLoggedIn) {
       this.recipeService.getAllRecipes().subscribe({
         next: (recipes) => {
-          this.recipes = recipes;
+          this.recipes = recipes.reverse();
           this.filterRecipes();
-                this.cdr.detectChanges(); 
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error loading recipes:', error);
-                this.cdr.detectChanges(); 
+          this.cdr.detectChanges();
         }
       });
     } else {
@@ -90,11 +95,11 @@ export class RecipesComponent implements OnInit {
         next: (recipes) => {
           this.recipes = recipes;
           this.filterRecipes();
-                this.cdr.detectChanges(); 
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error loading public recipes:', error);
-                this.cdr.detectChanges(); 
+          this.cdr.detectChanges();
         }
       });
     }
@@ -141,7 +146,7 @@ export class RecipesComponent implements OnInit {
     const pages = [];
     const start = Math.max(1, this.currentPage - 2);
     const end = Math.min(this.totalPages, this.currentPage + 2);
-    
+
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
@@ -179,12 +184,12 @@ export class RecipesComponent implements OnInit {
         next: (recipes) => {
           this.recipes = recipes;
           this.filterRecipes();
-                          this.cdr.detectChanges(); 
+          this.cdr.detectChanges();
 
         },
         error: (error) => {
           console.error('Error loading my recipes:', error);
-                          this.cdr.detectChanges(); 
+          this.cdr.detectChanges();
 
         }
       });
@@ -240,6 +245,9 @@ export class RecipesComponent implements OnInit {
       unit: ['', Validators.required]
     });
   }
+  getIngredientControls(index: number): FormGroup {
+    return this.ingredientsArray.at(index) as FormGroup;
+  }
 
   createInstruction(): FormGroup {
     return this.fb.group({
@@ -281,7 +289,7 @@ export class RecipesComponent implements OnInit {
 
     this.isCreating = true;
     const formValue = this.recipeForm.value;
-    
+
     const recipeData = {
       title: formValue.title,
       description: formValue.description,
@@ -299,7 +307,7 @@ export class RecipesComponent implements OnInit {
         console.log('Recipe created successfully:', recipe);
         this.isCreating = false;
         this.closeCreateModal();
-        this.loadRecipes(); 
+        this.loadRecipes();
       },
       error: (error) => {
         console.error('Error creating recipe:', error);
@@ -307,4 +315,41 @@ export class RecipesComponent implements OnInit {
       }
     });
   }
+  canDeleteRecipe(recipe: Recipe): boolean {
+    if (!this.isLoggedIn || !this.currentUser) return false;
+    return recipe.userId === this.currentUser;
+  }
+
+  openDeleteConfirmation(event: Event, recipe: Recipe): void {
+    event.stopPropagation();
+    if (!this.canDeleteRecipe(recipe)) return;
+
+    this.recipeToDelete = recipe;
+    this.showDeleteConfirmation = true;
+  }
+
+  closeDeleteConfirmation(): void {
+    this.showDeleteConfirmation = false;
+    this.recipeToDelete = null;
+    this.isDeleting = false;
+  }
+deleteRecipe(): void {
+  if (!this.recipeToDelete?.id) return;
+
+  this.isDeleting = true;
+  this.recipeService.deleteRecipe(this.recipeToDelete.id).subscribe({
+    next: () => {
+      console.log('Recipe deleted successfully');
+      const deletedRecipeId = this.recipeToDelete!.id;
+      this.closeDeleteConfirmation();
+      this.recipes = this.recipes.filter(r => r.id !== deletedRecipeId);
+      this.filterRecipes();
+      this.cdr.detectChanges();
+    },
+    error: (error) => {
+      this.isDeleting = false;
+    }
+  });
+}
+
 }
