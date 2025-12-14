@@ -1,9 +1,12 @@
 
-# 🍽️ **Recipe App - Full Stack Microservices**
+# 🍽️ **Recipe Genius App - Full Stack Microservices**
 
 ## 📋 Project Overview
 
 This is a full-stack recipe management application with a modern **Angular frontend** and a **Spring Boot microservices backend**. The system manages recipes, pantries, and AI-powered recipe generation.
+
+## 🚀 **Live Demo**
+**👉 [Live Application](https://recipe-app-angular.fly.dev)** - Experience the full application live!
 
 ##  🎯 Project Vision
 A microservices application built to explore and implement modern cloud-native patterns using:
@@ -20,17 +23,27 @@ A microservices application built to explore and implement modern cloud-native p
 - ✅ **Complete Angular frontend** with responsive design and modern UX patterns
 - ✅ **AI Chef integration** using Google Gemini for intelligent recipe suggestions
 - ✅ **Automated CI/CD Pipeline** with GitHub Actions for seamless deployment
+- ✅ **Production Deployment on Fly.io** with automated scaling and monitoring  
+
+### **Deployment Status on Fly.io:**
+✅ **Frontend Application**: https://recipe-app-angular.fly.dev  
+✅ **API Gateway**: https://recipe-api-gateway.fly.dev  
+✅ **User Service**: https://recipe-user-service.fly.dev  
+✅ **Pantry Service**: https://recipe-pantry-service.fly.dev  
+✅ **Recipe Service**: https://recipe-recipe-service.fly.dev  
+✅ **AI Chef Service**: https://recipe-ai-chef-service.fly.dev  
+✅ **PostgreSQL Databases**: Running on Fly.io internal network
 
 ---
 
 
 ## 🏗️ **Full Stack Architecture**
 
-### **Frontend Architecture**
+### **Frontend Architecture (Fly.io Deployment)**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Angular Frontend                         │
-│                   (Port: 4200 / Deployed)                   │
+│                      Angular Frontend                       │
+│                        (Port: 4200 )                        │
 ├─────────────────────────────────────────────────────────────┤
 │  Components       │  Services      │  State      │  Shared  │
 │  • AI Chef        │  • Auth        │  • Signals  │  • Models│
@@ -40,7 +53,7 @@ A microservices application built to explore and implement modern cloud-native p
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### **Backend Architecture (Kubernetes-based)**
+### **Backend Architecture (Fly.io Deployment)**
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                    Angular Frontend                          │
@@ -254,6 +267,7 @@ docker-compose up -d
 ---
 
 ## 👩‍💻 Developed with ❤️ by Mariem BELDI.
+
 
 
 
